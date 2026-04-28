@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, UserPlus } from "lucide-react";
+import { ArrowLeft, MapPin, Pencil, UserPlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { requireCoachId } from "@/lib/currentCoach";
 import {
   DAYS_LONG_DE,
   ballBadgeClass,
@@ -27,23 +28,48 @@ import { PlanEditor } from "@/components/plan-editor";
 
 export const dynamic = "force-dynamic";
 
-async function load(id: string) {
+async function load(id: string, coachId: string) {
   const supabase = await getSupabaseServer();
   const weekOf = isoDate(currentWeekMonday());
 
-  const [{ data: group, error: gErr }, { data: players }, { data: exercises }] =
-    await Promise.all([
-      supabase.from("groups").select("*").eq("id", id).maybeSingle(),
-      supabase
-        .from("players")
-        .select("*")
-        .eq("primary_group_id", id)
-        .order("first_name"),
-      supabase.from("exercises").select("*").order("name"),
-    ]);
+  const [
+    { data: group, error: gErr },
+    { data: players },
+    { data: spaceRows },
+  ] = await Promise.all([
+    supabase
+      .from("groups")
+      .select("*")
+      .eq("id", id)
+      .eq("coach_id", coachId)
+      .maybeSingle(),
+    supabase
+      .from("players")
+      .select("*")
+      .eq("primary_group_id", id)
+      .eq("coach_id", coachId)
+      .order("first_name"),
+    // Coach's exercise space — only exercises in the coach's space are
+    // assignable to plan blocks.
+    supabase
+      .from("coach_exercises")
+      .select("exercise_id, started_at, exercise:exercises(*)")
+      .eq("coach_id", coachId),
+  ]);
 
   if (gErr) throw new Error(gErr.message);
   if (!group) return null;
+
+  const spaceExercises: Exercise[] = (
+    (spaceRows ?? []) as Array<{
+      exercise: Exercise | Exercise[] | null;
+    }>
+  )
+    .map((r) =>
+      Array.isArray(r.exercise) ? (r.exercise[0] ?? null) : r.exercise,
+    )
+    .filter((e): e is Exercise => !!e)
+    .sort((a, b) => a.name.localeCompare(b.name, "de"));
 
   const { data: plan } = await supabase
     .from("training_plans")
@@ -62,9 +88,23 @@ async function load(id: string) {
     blocks = (blockRows ?? []) as PlanBlock[];
   }
 
+  // For block enrichment we need the exercise even if it's not (or no
+  // longer) in the coach's space, so blocks render correctly.
   const exerciseMap = new Map<string, Exercise>(
-    ((exercises ?? []) as Exercise[]).map((e) => [e.id, e]),
+    spaceExercises.map((e) => [e.id, e]),
   );
+  const missingIds = blocks
+    .map((b) => b.exercise_id)
+    .filter((eid): eid is string => !!eid && !exerciseMap.has(eid));
+  if (missingIds.length > 0) {
+    const { data: extra } = await supabase
+      .from("exercises")
+      .select("*")
+      .in("id", missingIds);
+    for (const e of (extra ?? []) as Exercise[]) {
+      exerciseMap.set(e.id, e);
+    }
+  }
   const enrichedBlocks = blocks.map((b) => ({
     ...b,
     exercise: b.exercise_id ? (exerciseMap.get(b.exercise_id) ?? null) : null,
@@ -73,7 +113,7 @@ async function load(id: string) {
   return {
     group: group as Group,
     players: (players ?? []) as Player[],
-    exercises: (exercises ?? []) as Exercise[],
+    spaceExercises,
     plan: (plan ?? null) as TrainingPlan | null,
     blocks: enrichedBlocks,
     weekOf,
@@ -81,11 +121,12 @@ async function load(id: string) {
 }
 
 export default async function GroupPage(props: PageProps<"/groups/[id]">) {
+  const coachId = await requireCoachId();
   const { id } = await props.params;
-  const data = await load(id);
+  const data = await load(id, coachId);
   if (!data) notFound();
 
-  const { group, players, exercises, blocks, weekOf } = data;
+  const { group, players, spaceExercises, blocks, weekOf } = data;
 
   return (
     <div className="space-y-5">
@@ -97,9 +138,21 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
           <ArrowLeft className="h-3 w-3" />
           Wochenplan
         </Link>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight leading-tight">
-          {group.name}
-        </h1>
+        <div className="mt-1 flex items-start gap-2">
+          <h1 className="flex-1 text-2xl font-semibold tracking-tight leading-tight">
+            {group.name}
+          </h1>
+          <Link
+            href={`/groups/${group.id}/edit`}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon-sm" }),
+              "shrink-0 text-muted-foreground hover:text-[var(--clay)]",
+            )}
+            aria-label="Gruppe bearbeiten"
+          >
+            <Pencil className="h-4 w-4" />
+          </Link>
+        </div>
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
           <span>{DAYS_LONG_DE[group.day_of_week - 1]}</span>
           <span>{formatTimeRange(group.start_time, group.end_time)}</span>
@@ -143,7 +196,7 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
               <li key={p.id}>
                 <Link
                   href={`/players/${p.id}`}
-                  className="flex items-center gap-2 rounded-md border bg-card p-2 transition hover:bg-accent"
+                  className="flex items-center gap-2 rounded-md border bg-card p-2 transition-all duration-200 active:scale-[0.97] hover:bg-accent"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-clay-soft text-sm font-semibold">
                     {initials(p)}
@@ -180,10 +233,19 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
               groupId={group.id}
               weekOf={weekOf}
               blocks={blocks}
-              exercises={exercises}
+              exercises={spaceExercises}
             />
           </CardContent>
         </Card>
+        {spaceExercises.length === 0 ? (
+          <p className="rounded-md border border-dashed bg-muted/30 px-3 py-3 text-center text-xs text-muted-foreground">
+            Dein Übungs-Bestand ist leer. Lege im{" "}
+            <Link href="/exercises" className="text-[var(--clay)] underline">
+              Katalog
+            </Link>{" "}
+            Übungen ab, um sie im Plan auswählen zu können.
+          </p>
+        ) : null}
       </section>
 
       {group.notes ? (

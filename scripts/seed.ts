@@ -1,6 +1,9 @@
 /* eslint-disable no-console */
-// Seed groups + exercises into Supabase.
+// Seed Michael's coach + groups + global exercises into Supabase.
 // Usage: npx tsx scripts/seed.ts
+//
+// Run AFTER applying supabase/migrations/0001_multi_coach.sql in the
+// Supabase SQL Editor. Idempotent — re-running is safe.
 
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
@@ -44,6 +47,24 @@ if (!url || !serviceKey) {
 const supabase = createClient(url, serviceKey, {
   auth: { persistSession: false },
 });
+
+const COACH_NAME = "Michael";
+
+async function ensureCoach(name: string): Promise<string> {
+  const { data: existing } = await supabase
+    .from("coaches")
+    .select("id")
+    .eq("name", name)
+    .maybeSingle();
+  if (existing) return existing.id as string;
+  const { data, error } = await supabase
+    .from("coaches")
+    .insert({ name })
+    .select("id")
+    .single();
+  if (error) throw error;
+  return data.id as string;
+}
 
 type GroupSeed = {
   name: string;
@@ -293,30 +314,33 @@ const exercises: ExerciseSeed[] = [
   },
 ];
 
-async function upsertGroups() {
-  console.log(`Seeding ${groups.length} groups...`);
+async function upsertGroups(coachId: string) {
+  console.log(`Seeding ${groups.length} groups for ${COACH_NAME}...`);
   for (const g of groups) {
+    const payload = { ...g, coach_id: coachId };
     const { data: existing, error: selErr } = await supabase
       .from("groups")
       .select("id")
       .eq("name", g.name)
+      .eq("coach_id", coachId)
       .maybeSingle();
     if (selErr) throw selErr;
     if (existing) {
       const { error } = await supabase
         .from("groups")
-        .update(g)
+        .update(payload)
         .eq("id", existing.id);
       if (error) throw error;
     } else {
-      const { error } = await supabase.from("groups").insert(g);
+      const { error } = await supabase.from("groups").insert(payload);
       if (error) throw error;
     }
   }
 }
 
-async function upsertExercises() {
-  console.log(`Seeding ${exercises.length} exercises...`);
+async function upsertExercises(): Promise<string[]> {
+  console.log(`Seeding ${exercises.length} global exercises...`);
+  const ids: string[] = [];
   for (const ex of exercises) {
     const { data: existing, error: selErr } = await supabase
       .from("exercises")
@@ -330,16 +354,41 @@ async function upsertExercises() {
         .update(ex)
         .eq("id", existing.id);
       if (error) throw error;
+      ids.push(existing.id as string);
     } else {
-      const { error } = await supabase.from("exercises").insert(ex);
+      const { data: created, error } = await supabase
+        .from("exercises")
+        .insert(ex)
+        .select("id")
+        .single();
       if (error) throw error;
+      ids.push(created.id as string);
     }
   }
+  return ids;
+}
+
+async function populateSpace(coachId: string, exerciseIds: string[]) {
+  console.log(
+    `Adding ${exerciseIds.length} exercises to ${COACH_NAME}'s space (Im Einsatz)...`,
+  );
+  const rows = exerciseIds.map((id) => ({
+    coach_id: coachId,
+    exercise_id: id,
+    started_at: new Date().toISOString(),
+  }));
+  const { error } = await supabase
+    .from("coach_exercises")
+    .upsert(rows, { onConflict: "coach_id,exercise_id" });
+  if (error) throw error;
 }
 
 async function main() {
-  await upsertGroups();
-  await upsertExercises();
+  const coachId = await ensureCoach(COACH_NAME);
+  console.log(`Coach "${COACH_NAME}" id: ${coachId}`);
+  await upsertGroups(coachId);
+  const exerciseIds = await upsertExercises();
+  await populateSpace(coachId, exerciseIds);
   console.log("Done.");
 }
 

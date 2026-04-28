@@ -1,3 +1,19 @@
+export type Coach = {
+  id: string;
+  name: string;
+  password_hash: string | null;
+  reset_token: string | null;
+  reset_expires_at: string | null;
+  created_at: string;
+};
+
+export type CoachExercise = {
+  coach_id: string;
+  exercise_id: string;
+  started_at: string | null;
+  added_at: string;
+};
+
 export type BallType = "green" | "orange" | "red" | "hard";
 export type Hand = "right" | "left";
 export type NoteCategory = "technical" | "tactical" | "physical" | "mental";
@@ -18,6 +34,7 @@ export type BlockType =
 
 export type Group = {
   id: string;
+  coach_id: string;
   name: string;
   day_of_week: number; // 1 = Mon ... 7 = Sun
   start_time: string; // "HH:MM:SS"
@@ -34,6 +51,7 @@ export type Group = {
 
 export type Player = {
   id: string;
+  coach_id: string;
   first_name: string;
   last_name: string | null;
   year_of_birth: number | null;

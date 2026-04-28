@@ -4,25 +4,35 @@ import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { requireCoachId } from "@/lib/currentCoach";
 import { ballBadgeClass, ballLabel, categoryLabel } from "@/lib/format";
 import type { Exercise } from "@/lib/types";
+import { SpaceToggle } from "./space-toggle";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExerciseDetailPage(
   props: PageProps<"/exercises/[id]">,
 ) {
+  const coachId = await requireCoachId();
   const { id } = await props.params;
   const supabase = await getSupabaseServer();
-  const { data, error } = await supabase
-    .from("exercises")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+
+  const [{ data, error }, { data: spaceRow }] = await Promise.all([
+    supabase.from("exercises").select("*").eq("id", id).maybeSingle(),
+    supabase
+      .from("coach_exercises")
+      .select("started_at")
+      .eq("coach_id", coachId)
+      .eq("exercise_id", id)
+      .maybeSingle(),
+  ]);
   if (error) throw new Error(error.message);
   if (!data) notFound();
 
   const ex = data as Exercise;
+  const inSpace = !!spaceRow;
+  const started = !!spaceRow?.started_at;
 
   return (
     <div className="space-y-4">
@@ -32,7 +42,7 @@ export default async function ExerciseDetailPage(
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3 w-3" />
-          Bibliothek
+          Übungen
         </Link>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight leading-tight">
           {ex.name}
@@ -55,6 +65,12 @@ export default async function ExerciseDetailPage(
           ) : null}
         </div>
       </div>
+
+      <SpaceToggle
+        exerciseId={ex.id}
+        inSpace={inSpace}
+        started={started}
+      />
 
       {ex.description ? (
         <Card>

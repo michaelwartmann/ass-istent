@@ -1,8 +1,11 @@
 import Link from "next/link";
-import { MapPin, Users } from "lucide-react";
+import { MapPin, Plus, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { requireCoachId } from "@/lib/currentCoach";
 import {
   DAYS_LONG_DE,
   ballBadgeClass,
@@ -17,11 +20,19 @@ export const dynamic = "force-dynamic";
 
 type GroupWithCount = Group & { player_count: number };
 
-async function loadWeek() {
+async function loadWeek(coachId: string) {
   const supabase = await getSupabaseServer();
   const [{ data: groups, error }, { data: players }] = await Promise.all([
-    supabase.from("groups").select("*").order("day_of_week").order("start_time"),
-    supabase.from("players").select("primary_group_id"),
+    supabase
+      .from("groups")
+      .select("*")
+      .eq("coach_id", coachId)
+      .order("day_of_week")
+      .order("start_time"),
+    supabase
+      .from("players")
+      .select("primary_group_id")
+      .eq("coach_id", coachId),
   ]);
 
   if (error) {
@@ -42,7 +53,8 @@ async function loadWeek() {
 }
 
 export default async function WeekPage() {
-  const { error, groups } = await loadWeek();
+  const coachId = await requireCoachId();
+  const { error, groups } = await loadWeek(coachId);
   const monday = currentWeekMonday();
 
   const byDay = new Map<number, GroupWithCount[]>();
@@ -55,13 +67,25 @@ export default async function WeekPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-          Diese Woche
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {formatWeekRange(monday)}
-        </h1>
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            Diese Woche
+          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {formatWeekRange(monday)}
+          </h1>
+        </div>
+        <Link
+          href="/groups/new"
+          className={cn(
+            buttonVariants({ size: "sm" }),
+            "bg-[var(--clay)] hover:bg-[var(--clay)]/90",
+          )}
+        >
+          <Plus className="mr-1 h-4 w-4" />
+          Gruppe
+        </Link>
       </div>
 
       {error ? (
@@ -72,8 +96,10 @@ export default async function WeekPage() {
             </p>
             <p className="text-muted-foreground">{error}</p>
             <p className="text-muted-foreground">
-              Tipp: Schema aus{" "}
-              <code className="rounded bg-muted px-1">supabase/schema.sql</code>{" "}
+              Tipp: Migration aus{" "}
+              <code className="rounded bg-muted px-1">
+                supabase/migrations/0001_multi_coach.sql
+              </code>{" "}
               im SQL-Editor ausführen, dann{" "}
               <code className="rounded bg-muted px-1">
                 npx tsx scripts/seed.ts
@@ -86,14 +112,22 @@ export default async function WeekPage() {
 
       {!error && days.length === 0 ? (
         <Card>
-          <CardContent className="space-y-1 p-6 text-center text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">Keine Gruppen angelegt.</p>
+          <CardContent className="space-y-3 p-6 text-center text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">Noch keine Gruppen.</p>
             <p>
-              Seed laufen lassen:{" "}
-              <code className="rounded bg-muted px-1">
-                npx tsx scripts/seed.ts
-              </code>
+              Lege deine erste Trainingsgruppe an, um den Wochenplan zu
+              befüllen.
             </p>
+            <Link
+              href="/groups/new"
+              className={cn(
+                buttonVariants({ size: "default" }),
+                "bg-[var(--clay)] hover:bg-[var(--clay)]/90",
+              )}
+            >
+              <Plus className="mr-1 h-4 w-4" />
+              Erste Gruppe anlegen
+            </Link>
           </CardContent>
         </Card>
       ) : null}
@@ -108,7 +142,7 @@ export default async function WeekPage() {
               {byDay.get(d)!.map((g) => (
                 <li key={g.id}>
                   <Link href={`/groups/${g.id}`} className="block">
-                    <Card className="transition active:scale-[0.99] hover:shadow-md">
+                    <Card className="transition-all duration-200 active:scale-[0.98] hover:shadow-md">
                       <CardContent className="flex items-center gap-3 p-4">
                         <div className="flex w-16 flex-col items-center justify-center rounded-md bg-clay-soft py-2 text-center">
                           <span className="text-base font-semibold text-foreground">
