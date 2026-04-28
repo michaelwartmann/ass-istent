@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ass-istent
 
-## Getting Started
+Coach's notebook for tennis training: groups, players, exercises, weekly plans.
 
-First, run the development server:
+Mobile-first Next.js 16 + Tailwind 4 + Supabase (EU-Frankfurt).
+
+## Stack
+
+- **Next.js 16 (App Router, Turbopack), React 19, TypeScript**
+- **Tailwind 4** + **shadcn/ui** (base-ui flavour, neutral)
+- **Supabase** for DB; `@supabase/ssr` for server clients
+- `date-fns`, `lucide-react`, `zod`, `react-hook-form`, `sonner`
+- Web Speech API for voice-dictated player notes (`de-DE`)
+
+## First-time setup
+
+```bash
+npm install
+cp .env.local.example .env.local        # values may already match your project
+```
+
+Then in the Supabase SQL Editor, paste the contents of
+[`supabase/schema.sql`](supabase/schema.sql) and run it.
+
+Seed example data (10 groups + ~22 exercises):
+
+```bash
+npx tsx scripts/seed.ts
+```
+
+The seed script is idempotent — it will update by name on re-runs.
+
+## Develop
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app is mobile-first; resize your browser to ~390px or use device mode.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Path                 | What                                             |
+| -------------------- | ------------------------------------------------ |
+| `/`                  | Week view — all groups grouped by weekday        |
+| `/groups/[id]`       | Group detail, players, current week's plan       |
+| `/players`           | All players                                      |
+| `/players/new`       | Add a new player                                 |
+| `/players/[id]`      | Profile + notes (4 categories, voice dictation)  |
+| `/exercises`         | Exercise library, search & filter                |
+| `/exercises/[id]`    | Exercise detail                                  |
+| `/exercises/new`     | Add a new exercise                               |
+| `/settings`          | Placeholder                                      |
 
-## Learn More
+## Branding
 
-To learn more about Next.js, take a look at the following resources:
+Drop these PNGs into `/public` (header falls back to text otherwise):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `logo-tub.png` — TuB Bocholt
+- `logo-mike.png` — coach
+- `logo-kalisch.png` — Kalisch
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Auth
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+v1 = single coach. RLS is enabled with open `anon` policies; tighten in
+`supabase/schema.sql` when a second coach joins.
