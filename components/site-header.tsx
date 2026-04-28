@@ -15,26 +15,30 @@ function LogoSlot({
   file,
   alt,
   fallback,
+  size = "default",
 }: {
   file: string;
   alt: string;
   fallback: string;
+  size?: "default" | "lg";
 }) {
+  const dim = size === "lg" ? "h-16 w-16" : "h-9 w-9";
+  const px = size === "lg" ? 128 : 48;
   if (publicExists(file)) {
     return (
       <Image
         src={`/${file}`}
         alt={alt}
-        width={48}
-        height={48}
-        className="h-9 w-9 object-contain"
+        width={px}
+        height={px}
+        className={`${dim} object-contain`}
       />
     );
   }
   return (
     <div
       aria-label={alt}
-      className="flex h-9 w-9 items-center justify-center rounded-md bg-clay-soft text-[10px] font-bold text-foreground/70"
+      className={`flex ${dim} items-center justify-center rounded-md bg-clay-soft text-[10px] font-bold text-foreground/70`}
     >
       {fallback}
     </div>
@@ -61,7 +65,12 @@ export function SiteHeader() {
             </span>
           </span>
         </Link>
-        <LogoSlot file="kalisch.png" alt="Kalisch Tennis" fallback="K" />
+        <LogoSlot
+          file="kalisch.png"
+          alt="Kalisch Tennis"
+          fallback="K"
+          size="lg"
+        />
       </div>
     </header>
   );
