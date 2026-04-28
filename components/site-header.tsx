@@ -45,9 +45,12 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-2.5">
-        <LogoSlot file="logo-tub.png" alt="TuB Bocholt" fallback="TuB" />
+        <LogoSlot
+          file="tub-bocholt-sportverein.png"
+          alt="TuB Bocholt"
+          fallback="TuB"
+        />
         <Link href="/" className="flex select-none items-center gap-2">
-          <LogoSlot file="logo-mike.png" alt="Coach Mike" fallback="M" />
           <span className="flex flex-col leading-tight">
             <span className="text-lg font-semibold tracking-tight">
               <span className="text-[var(--clay)]">ass</span>
@@ -58,7 +61,7 @@ export function SiteHeader() {
             </span>
           </span>
         </Link>
-        <LogoSlot file="logo-kalisch.png" alt="Kalisch" fallback="K" />
+        <LogoSlot file="kalisch.png" alt="Kalisch Tennis" fallback="K" />
       </div>
     </header>
   );
