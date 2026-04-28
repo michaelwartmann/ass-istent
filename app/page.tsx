@@ -1,65 +1,157 @@
-import Image from "next/image";
+import Link from "next/link";
+import { MapPin, Users } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { getSupabaseServer } from "@/lib/supabase/server";
+import {
+  DAYS_LONG_DE,
+  ballBadgeClass,
+  ballLabel,
+  formatTimeRange,
+  formatWeekRange,
+  currentWeekMonday,
+} from "@/lib/format";
+import type { Group } from "@/lib/types";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+type GroupWithCount = Group & { player_count: number };
+
+async function loadWeek() {
+  const supabase = await getSupabaseServer();
+  const [{ data: groups, error }, { data: players }] = await Promise.all([
+    supabase.from("groups").select("*").order("day_of_week").order("start_time"),
+    supabase.from("players").select("primary_group_id"),
+  ]);
+
+  if (error) {
+    return { error: error.message, groups: [] as GroupWithCount[] };
+  }
+
+  const counts = new Map<string, number>();
+  for (const p of players ?? []) {
+    if (!p.primary_group_id) continue;
+    counts.set(p.primary_group_id, (counts.get(p.primary_group_id) ?? 0) + 1);
+  }
+
+  const enriched = ((groups ?? []) as Group[]).map((g) => ({
+    ...g,
+    player_count: counts.get(g.id) ?? 0,
+  }));
+  return { error: null as string | null, groups: enriched };
+}
+
+export default async function WeekPage() {
+  const { error, groups } = await loadWeek();
+  const monday = currentWeekMonday();
+
+  const byDay = new Map<number, GroupWithCount[]>();
+  for (const g of groups) {
+    const list = byDay.get(g.day_of_week) ?? [];
+    list.push(g);
+    byDay.set(g.day_of_week, list);
+  }
+  const days = [1, 2, 3, 4, 5, 6, 7].filter((d) => byDay.has(d));
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="space-y-5">
+      <div>
+        <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+          Diese Woche
+        </p>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {formatWeekRange(monday)}
+        </h1>
+      </div>
+
+      {error ? (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="space-y-2 p-4 text-sm">
+            <p className="font-semibold text-destructive">
+              Konnte Gruppen nicht laden
+            </p>
+            <p className="text-muted-foreground">{error}</p>
+            <p className="text-muted-foreground">
+              Tipp: Schema aus{" "}
+              <code className="rounded bg-muted px-1">supabase/schema.sql</code>{" "}
+              im SQL-Editor ausführen, dann{" "}
+              <code className="rounded bg-muted px-1">
+                npx tsx scripts/seed.ts
+              </code>
+              .
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {!error && days.length === 0 ? (
+        <Card>
+          <CardContent className="space-y-1 p-6 text-center text-sm text-muted-foreground">
+            <p className="font-medium text-foreground">Keine Gruppen angelegt.</p>
+            <p>
+              Seed laufen lassen:{" "}
+              <code className="rounded bg-muted px-1">
+                npx tsx scripts/seed.ts
+              </code>
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <div className="space-y-5">
+        {days.map((d) => (
+          <section key={d} className="space-y-2">
+            <h2 className="px-1 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+              {DAYS_LONG_DE[d - 1]}
+            </h2>
+            <ul className="space-y-2">
+              {byDay.get(d)!.map((g) => (
+                <li key={g.id}>
+                  <Link href={`/groups/${g.id}`} className="block">
+                    <Card className="transition active:scale-[0.99] hover:shadow-md">
+                      <CardContent className="flex items-center gap-3 p-4">
+                        <div className="flex w-16 flex-col items-center justify-center rounded-md bg-clay-soft py-2 text-center">
+                          <span className="text-base font-semibold text-foreground">
+                            {g.start_time.slice(0, 5)}
+                          </span>
+                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                            {g.end_time.slice(0, 5)}
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate font-medium leading-tight">
+                            {g.name}
+                          </p>
+                          <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {g.location}
+                            </span>
+                            <span className="inline-flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {g.player_count}
+                            </span>
+                            <span className="inline-flex items-center">
+                              {formatTimeRange(g.start_time, g.end_time)}
+                            </span>
+                          </p>
+                        </div>
+                        {g.ball_type ? (
+                          <Badge
+                            className={`${ballBadgeClass(g.ball_type)} border-0`}
+                          >
+                            {ballLabel(g.ball_type)}
+                          </Badge>
+                        ) : null}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
     </div>
   );
 }
