@@ -22,8 +22,8 @@ function LogoSlot({
   fallback: string;
   size?: "default" | "lg";
 }) {
-  const dim = size === "lg" ? "h-16 w-16" : "h-9 w-9";
-  const px = size === "lg" ? 128 : 48;
+  const dim = size === "lg" ? "h-32 w-32" : "h-[72px] w-[72px]";
+  const px = size === "lg" ? 256 : 144;
   if (publicExists(file)) {
     return (
       <Image
