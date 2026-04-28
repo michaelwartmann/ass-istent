@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { requireCoachId } from "@/lib/currentCoach";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlayerNotes } from "@/components/player-notes";
 import { formatPlayerName, initials } from "@/lib/format";
@@ -9,12 +10,13 @@ import type { Group, Player, PlayerNote } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-async function load(id: string) {
+async function load(id: string, coachId: string) {
   const supabase = await getSupabaseServer();
   const { data: player, error } = await supabase
     .from("players")
     .select("*")
     .eq("id", id)
+    .eq("coach_id", coachId)
     .maybeSingle();
   if (error) throw new Error(error.message);
   if (!player) return null;
@@ -30,6 +32,7 @@ async function load(id: string) {
           .from("groups")
           .select("id,name")
           .eq("id", player.primary_group_id)
+          .eq("coach_id", coachId)
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
@@ -44,8 +47,9 @@ async function load(id: string) {
 export default async function PlayerDetailPage(
   props: PageProps<"/players/[id]">,
 ) {
+  const coachId = await requireCoachId();
   const { id } = await props.params;
-  const data = await load(id);
+  const data = await load(id, coachId);
   if (!data) notFound();
 
   const { player, notes, group } = data;
@@ -70,9 +74,13 @@ export default async function PlayerDetailPage(
               {name}
             </h1>
             <p className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
-              {player.year_of_birth ? <span>Jg. {player.year_of_birth}</span> : null}
+              {player.year_of_birth ? (
+                <span>Jg. {player.year_of_birth}</span>
+              ) : null}
               {player.dominant_hand ? (
-                <span>{player.dominant_hand === "left" ? "Linkshand" : "Rechtshand"}</span>
+                <span>
+                  {player.dominant_hand === "left" ? "Linkshand" : "Rechtshand"}
+                </span>
               ) : null}
               {player.level ? <span>Level: {player.level}</span> : null}
               {group ? (

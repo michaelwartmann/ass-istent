@@ -4,16 +4,21 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSupabaseServer } from "@/lib/supabase/server";
+import { requireCoachId } from "@/lib/currentCoach";
 import { formatPlayerName, initials } from "@/lib/format";
 import type { Group, Player } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-async function load() {
+async function load(coachId: string) {
   const supabase = await getSupabaseServer();
   const [{ data: players, error }, { data: groups }] = await Promise.all([
-    supabase.from("players").select("*").order("first_name"),
-    supabase.from("groups").select("id,name"),
+    supabase
+      .from("players")
+      .select("*")
+      .eq("coach_id", coachId)
+      .order("first_name"),
+    supabase.from("groups").select("id,name").eq("coach_id", coachId),
   ]);
   const groupMap = new Map<string, Pick<Group, "id" | "name">>(
     ((groups ?? []) as Pick<Group, "id" | "name">[]).map((g) => [g.id, g]),
@@ -26,7 +31,8 @@ async function load() {
 }
 
 export default async function PlayersPage() {
-  const { players, groupMap, error } = await load();
+  const coachId = await requireCoachId();
+  const { players, groupMap, error } = await load(coachId);
   return (
     <div className="space-y-4">
       <div className="flex items-end justify-between">
@@ -42,7 +48,7 @@ export default async function PlayersPage() {
           href="/players/new"
           className={cn(
             buttonVariants({ size: "sm" }),
-            "bg-[var(--clay)] hover:bg-[var(--clay)]/90",
+            "bg-[var(--clay)] hover:bg-[var(--clay)]/90 active:scale-[0.97] transition-transform",
           )}
         >
           <UserPlus className="mr-1 h-4 w-4" />
@@ -57,11 +63,6 @@ export default async function PlayersPage() {
               Konnte Spieler nicht laden
             </p>
             <p className="text-muted-foreground">{error}</p>
-            <p className="text-muted-foreground">
-              Schema aus{" "}
-              <code className="rounded bg-muted px-1">supabase/schema.sql</code>{" "}
-              im SQL-Editor ausführen.
-            </p>
           </CardContent>
         </Card>
       ) : players.length === 0 ? (
@@ -81,7 +82,7 @@ export default async function PlayersPage() {
               <li key={p.id}>
                 <Link
                   href={`/players/${p.id}`}
-                  className="flex items-center gap-3 rounded-md border bg-card p-3 transition hover:bg-accent"
+                  className="flex items-center gap-3 rounded-md border bg-card p-3 transition-all duration-200 active:scale-[0.98] hover:bg-accent"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-clay-soft text-sm font-semibold">
                     {initials(p)}
@@ -91,7 +92,10 @@ export default async function PlayersPage() {
                       {formatPlayerName(p)}
                     </span>
                     <span className="block truncate text-xs text-muted-foreground">
-                      {[group?.name, p.year_of_birth ? `Jg. ${p.year_of_birth}` : null]
+                      {[
+                        group?.name,
+                        p.year_of_birth ? `Jg. ${p.year_of_birth}` : null,
+                      ]
                         .filter(Boolean)
                         .join(" · ") || "—"}
                     </span>
