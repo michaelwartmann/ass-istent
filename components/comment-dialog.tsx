@@ -13,7 +13,16 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { addPlayerNoteAction } from "@/lib/actions";
+import { useDictation } from "@/lib/use-dictation";
+import { DictationBar } from "@/components/player-notes";
 import type { NoteCategory } from "@/lib/types";
+
+function appendChunk(prev: string, addition: string): string {
+  if (!addition) return prev;
+  if (!prev) return addition;
+  const sep = /[\s\.,!?;:]$/.test(prev) ? "" : " ";
+  return `${prev}${sep}${addition}`;
+}
 
 const CATEGORIES: { value: NoteCategory; label: string; color: string }[] = [
   { value: "technical", label: "Technik", color: "bg-sky-100 text-sky-900 border-sky-200" },
@@ -38,13 +47,20 @@ export function CommentDialog({
   const [content, setContent] = useState("");
   const [pending, startTransition] = useTransition();
 
+  const dictation = useDictation({
+    onText: (text) => setContent((prev) => appendChunk(prev, text)),
+  });
+
   function reset() {
     setCategory("technical");
     setContent("");
   }
 
   function handleOpen(o: boolean) {
-    if (!o) reset();
+    if (!o) {
+      if (dictation.listening) dictation.stop();
+      reset();
+    }
     setOpen(o);
   }
 
@@ -110,7 +126,7 @@ export function CommentDialog({
             </div>
           </div>
 
-          <div className="flex flex-1 flex-col gap-1">
+          <div className="flex flex-1 flex-col gap-2">
             <label className="text-xs uppercase tracking-wider text-muted-foreground">
               Kommentar
             </label>
@@ -121,6 +137,7 @@ export function CommentDialog({
               className="min-h-32 flex-1 resize-none"
               autoFocus
             />
+            <DictationBar dictation={dictation} />
           </div>
         </div>
 
