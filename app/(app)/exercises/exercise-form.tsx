@@ -14,8 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createExerciseAction } from "@/lib/actions";
-import type { BallType, ExerciseCategory } from "@/lib/types";
+import {
+  createExerciseAction,
+  updateExerciseAction,
+  type ExerciseInput,
+} from "@/lib/actions";
+import type { BallType, Exercise, ExerciseCategory } from "@/lib/types";
+
+type Mode =
+  | { kind: "create" }
+  | { kind: "edit"; exercise: Exercise };
 
 const CATEGORIES: { value: ExerciseCategory; label: string }[] = [
   { value: "warm_up", label: "Warm-up" },
@@ -26,52 +34,86 @@ const CATEGORIES: { value: ExerciseCategory; label: string }[] = [
   { value: "cool_down", label: "Cool-down" },
 ];
 
-const BALLS: { value: BallType; label: string }[] = [
+const BALLS: { value: BallType | "none"; label: string }[] = [
+  { value: "none", label: "—" },
   { value: "green", label: "Grün" },
   { value: "orange", label: "Orange" },
   { value: "red", label: "Rot" },
   { value: "hard", label: "Hart" },
 ];
 
-export function NewExerciseForm() {
+export function ExerciseForm({ mode }: { mode: Mode }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState<ExerciseCategory>("technical");
-  const [description, setDescription] = useState("");
-  const [duration, setDuration] = useState("");
-  const [ball, setBall] = useState<string>("none");
-  const [level, setLevel] = useState("");
-  const [equipment, setEquipment] = useState("");
-  const [tags, setTags] = useState("");
+  const init = mode.kind === "edit" ? mode.exercise : null;
+
+  const [name, setName] = useState(init?.name ?? "");
+  const [category, setCategory] = useState<ExerciseCategory>(
+    init?.category ?? "technical",
+  );
+  const [description, setDescription] = useState(init?.description ?? "");
+  const [duration, setDuration] = useState(
+    init?.duration_minutes != null ? String(init.duration_minutes) : "",
+  );
+  const [ball, setBall] = useState<string>(init?.ball_type ?? "none");
+  const [level, setLevel] = useState(init?.level ?? "");
+  const [equipment, setEquipment] = useState(init?.equipment ?? "");
+  const [tags, setTags] = useState((init?.tags ?? []).join(", "));
+
+  function buildInput(): ExerciseInput | null {
+    if (!name.trim()) {
+      toast.error("Name fehlt");
+      return null;
+    }
+    return {
+      name,
+      category,
+      description: description || null,
+      durationMinutes: duration ? Number(duration) : null,
+      ballType:
+        ball === "green" ||
+        ball === "orange" ||
+        ball === "red" ||
+        ball === "hard"
+          ? (ball as BallType)
+          : null,
+      level: level || null,
+      equipment: equipment || null,
+      tags: tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+    };
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) {
-      toast.error("Name fehlt");
-      return;
-    }
+    const fields = buildInput();
+    if (!fields) return;
     startTransition(async () => {
       try {
-        const id = await createExerciseAction({
-          name: name.trim(),
-          category,
-          description: description.trim() || undefined,
-          durationMinutes: duration ? Number(duration) : undefined,
-          ballType:
-            ball === "green" || ball === "orange" || ball === "red" || ball === "hard"
-              ? ball
-              : undefined,
-          level: level.trim() || undefined,
-          equipment: equipment.trim() || undefined,
-          tags: tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean),
-        });
-        toast.success("Übung gespeichert");
-        if (id) router.push(`/exercises/${id}`);
-        else router.push("/exercises");
+        if (mode.kind === "create") {
+          const id = await createExerciseAction({
+            name: fields.name,
+            category: fields.category,
+            description: fields.description ?? undefined,
+            durationMinutes: fields.durationMinutes ?? undefined,
+            ballType: fields.ballType ?? undefined,
+            level: fields.level ?? undefined,
+            equipment: fields.equipment ?? undefined,
+            tags: fields.tags ?? undefined,
+          });
+          toast.success("Übung gespeichert");
+          if (id) router.push(`/exercises/${id}`);
+          else router.push("/exercises");
+        } else {
+          await updateExerciseAction({
+            exerciseId: mode.exercise.id,
+            fields,
+          });
+          toast.success("Übung gespeichert");
+          router.push(`/exercises/${mode.exercise.id}`);
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : String(err));
       }
@@ -116,7 +158,6 @@ export function NewExerciseForm() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">—</SelectItem>
               {BALLS.map((b) => (
                 <SelectItem key={b.value} value={b.value}>
                   {b.label}
@@ -137,7 +178,7 @@ export function NewExerciseForm() {
           />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="level">Level</Label>
+          <Label htmlFor="level">Niveau</Label>
           <Input
             id="level"
             value={level}
@@ -187,7 +228,7 @@ export function NewExerciseForm() {
           disabled={pending}
           className="bg-[var(--clay)] hover:bg-[var(--clay)]/90"
         >
-          Speichern
+          {mode.kind === "edit" ? "Speichern" : "Anlegen"}
         </Button>
       </div>
     </form>

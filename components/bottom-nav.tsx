@@ -2,14 +2,47 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Dumbbell, Settings, Users } from "lucide-react";
+import {
+  Calendar,
+  CalendarDays,
+  Dumbbell,
+  Settings,
+  Users,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
-  { href: "/", label: "Woche", icon: Calendar, match: (p: string) => p === "/" || p.startsWith("/groups") },
-  { href: "/players", label: "Spieler", icon: Users, match: (p: string) => p.startsWith("/players") },
-  { href: "/exercises", label: "Übungen", icon: Dumbbell, match: (p: string) => p.startsWith("/exercises") },
-  { href: "/settings", label: "Settings", icon: Settings, match: (p: string) => p.startsWith("/settings") },
+  {
+    href: "/",
+    label: "Woche",
+    icon: Calendar,
+    match: (p: string) =>
+      p === "/" || p.startsWith("/groups") || p.startsWith("/day"),
+  },
+  {
+    href: "/players",
+    label: "Spieler",
+    icon: Users,
+    match: (p: string) => p.startsWith("/players"),
+  },
+  {
+    href: "/exercises",
+    label: "Übungen",
+    icon: Dumbbell,
+    match: (p: string) => p.startsWith("/exercises"),
+  },
+  {
+    href: "/calendar",
+    label: "Kalender",
+    icon: CalendarDays,
+    match: (p: string) => p.startsWith("/calendar"),
+  },
+  {
+    href: "/settings",
+    label: "Einstellungen",
+    icon: Settings,
+    match: (p: string) => p.startsWith("/settings"),
+  },
 ];
 
 export function BottomNav() {
@@ -28,14 +61,14 @@ export function BottomNav() {
               <Link
                 href={item.href}
                 className={cn(
-                  "flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors",
+                  "flex h-16 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors",
                   active
                     ? "text-[var(--clay)]"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <Icon className={cn("h-5 w-5", active && "stroke-[2.4]")} />
-                <span>{item.label}</span>
+                <span className="truncate">{item.label}</span>
               </Link>
             </li>
           );

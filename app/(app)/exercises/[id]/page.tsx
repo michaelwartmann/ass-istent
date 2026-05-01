@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { requireCoachId } from "@/lib/currentCoach";
 import { ballBadgeClass, ballLabel, categoryLabel } from "@/lib/format";
@@ -44,9 +46,21 @@ export default async function ExerciseDetailPage(
           <ArrowLeft className="h-3 w-3" />
           Übungen
         </Link>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight leading-tight">
-          {ex.name}
-        </h1>
+        <div className="mt-1 flex items-start gap-2">
+          <h1 className="flex-1 text-2xl font-semibold tracking-tight leading-tight">
+            {ex.name}
+          </h1>
+          <Link
+            href={`/exercises/${ex.id}/edit`}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon-sm" }),
+              "shrink-0 text-muted-foreground hover:text-[var(--clay)]",
+            )}
+            aria-label="Übung bearbeiten"
+          >
+            <Pencil className="h-4 w-4" />
+          </Link>
+        </div>
         <div className="mt-2 flex flex-wrap gap-2">
           <Badge variant="secondary">{categoryLabel(ex.category)}</Badge>
           {ex.ball_type ? (
@@ -57,7 +71,7 @@ export default async function ExerciseDetailPage(
           {ex.duration_minutes ? (
             <Badge variant="outline">⏱ {ex.duration_minutes} min</Badge>
           ) : null}
-          {ex.level ? <Badge variant="outline">Level: {ex.level}</Badge> : null}
+          {ex.level ? <Badge variant="outline">Niveau: {ex.level}</Badge> : null}
           {ex.group_size_min || ex.group_size_max ? (
             <Badge variant="outline">
               Gruppe {ex.group_size_min ?? "?"}–{ex.group_size_max ?? "?"}

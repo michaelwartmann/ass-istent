@@ -222,7 +222,7 @@ export function GroupForm({ mode }: { mode: Mode }) {
           </Select>
         </div>
         <div className="space-y-1">
-          <Label htmlFor="level">Level</Label>
+          <Label htmlFor="level">Niveau</Label>
           <Input
             id="level"
             value={level}

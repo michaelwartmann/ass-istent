@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Pencil, UserPlus } from "lucide-react";
+import { ArrowLeft, MapPin, Pencil } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -25,6 +25,7 @@ import type {
   TrainingPlan,
 } from "@/lib/types";
 import { PlanEditor } from "@/components/plan-editor";
+import { AddPlayerSheet } from "./add-player-sheet";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,8 @@ async function load(id: string, coachId: string) {
 
   const [
     { data: group, error: gErr },
-    { data: players },
+    { data: gpRows },
+    { data: allCoachPlayers },
     { data: spaceRows },
   ] = await Promise.all([
     supabase
@@ -44,9 +46,13 @@ async function load(id: string, coachId: string) {
       .eq("coach_id", coachId)
       .maybeSingle(),
     supabase
+      .from("group_players")
+      .select("player_id, player:players!inner(*)")
+      .eq("group_id", id)
+      .eq("player.coach_id", coachId),
+    supabase
       .from("players")
-      .select("*")
-      .eq("primary_group_id", id)
+      .select("id, first_name, last_name, year_of_birth")
       .eq("coach_id", coachId)
       .order("first_name"),
     // Coach's exercise space — only exercises in the coach's space are
@@ -59,6 +65,20 @@ async function load(id: string, coachId: string) {
 
   if (gErr) throw new Error(gErr.message);
   if (!group) return null;
+
+  type GpRow = {
+    player_id: string;
+    player: Player | Player[] | null;
+  };
+  const players: Player[] = ((gpRows ?? []) as GpRow[])
+    .map((r) => (Array.isArray(r.player) ? (r.player[0] ?? null) : r.player))
+    .filter((p): p is Player => !!p)
+    .sort((a, b) => a.first_name.localeCompare(b.first_name, "de"));
+
+  const inGroupIds = new Set(players.map((p) => p.id));
+  const candidates = (allCoachPlayers ?? []).filter(
+    (p) => !inGroupIds.has(p.id),
+  );
 
   const spaceExercises: Exercise[] = (
     (spaceRows ?? []) as Array<{
@@ -112,7 +132,8 @@ async function load(id: string, coachId: string) {
 
   return {
     group: group as Group,
-    players: (players ?? []) as Player[],
+    players,
+    candidates,
     spaceExercises,
     plan: (plan ?? null) as TrainingPlan | null,
     blocks: enrichedBlocks,
@@ -126,7 +147,7 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
   const data = await load(id, coachId);
   if (!data) notFound();
 
-  const { group, players, spaceExercises, blocks, weekOf } = data;
+  const { group, players, candidates, spaceExercises, blocks, weekOf } = data;
 
   return (
     <div className="space-y-5">
@@ -165,7 +186,7 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
               {ballLabel(group.ball_type)}
             </Badge>
           ) : null}
-          {group.level ? <span>Level: {group.level}</span> : null}
+          {group.level ? <span>Niveau: {group.level}</span> : null}
           {group.age_band ? <span>Alter: {group.age_band}</span> : null}
         </p>
       </div>
@@ -175,16 +196,7 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
             Spieler ({players.length})
           </h2>
-          <Link
-            href={`/players/new?group=${group.id}`}
-            className={cn(
-              buttonVariants({ variant: "ghost", size: "sm" }),
-              "text-[var(--clay)]",
-            )}
-          >
-            <UserPlus className="mr-1 h-3.5 w-3.5" />
-            Neu
-          </Link>
+          <AddPlayerSheet groupId={group.id} candidates={candidates} />
         </div>
         {players.length === 0 ? (
           <p className="rounded-md border border-dashed bg-muted/30 px-3 py-4 text-center text-sm text-muted-foreground">

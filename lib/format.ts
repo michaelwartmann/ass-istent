@@ -43,6 +43,25 @@ export function parseDate(s: string) {
   return parseISO(s);
 }
 
+// "Mi 6.5." — used inline next to the long day name in the week view.
+export function formatDayShort(d: Date) {
+  return format(d, "EEEEEE d.M.", { locale: de });
+}
+
+// "Mittwoch, 6. Mai 2026" — page heading in day view.
+export function formatDateLong(d: Date) {
+  return format(d, "EEEE, d. MMMM yyyy", { locale: de });
+}
+
+// "Mi, 6.5.2026" — comment-list timestamp.
+export function formatNoteDate(d: Date) {
+  return format(d, "EEEEEE, d.M.yyyy", { locale: de });
+}
+
+export function shiftWeek(monday: Date, delta: number) {
+  return addDays(monday, delta * 7);
+}
+
 export function ballBadgeClass(ball: BallType | null | undefined) {
   switch (ball) {
     case "green":
