@@ -149,9 +149,11 @@ function NoteItem({ note, playerId }: { note: PlayerNote; playerId: string }) {
         </Button>
       </div>
       <p className="mt-1 text-[10px] uppercase tracking-wider text-muted-foreground">
-        {format(parseISO(note.created_at), "d. MMM yyyy · HH:mm", {
-          locale: de,
-        })}
+        {format(
+          parseISO(note.note_date ?? note.created_at),
+          "EEEEEE, d.M.yyyy",
+          { locale: de },
+        )}
       </p>
     </li>
   );

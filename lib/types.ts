@@ -16,7 +16,13 @@ export type CoachExercise = {
 
 export type BallType = "green" | "orange" | "red" | "hard";
 export type Hand = "right" | "left";
+export type Backhand = "einhaendig" | "beidhaendig";
 export type NoteCategory = "technical" | "tactical" | "physical" | "mental";
+export type CalendarDayType =
+  | "feiertag"
+  | "kein_unterricht"
+  | "schulferien"
+  | "sondertermin";
 export type ExerciseCategory =
   | "warm_up"
   | "technical"
@@ -57,10 +63,22 @@ export type Player = {
   year_of_birth: number | null;
   primary_group_id: string | null;
   dominant_hand: Hand | null;
+  backhand: Backhand | null;
   level: string | null;
   parent_contact: string | null;
   notes: string | null;
+  description: string | null;
+  goal_technical: string | null;
+  goal_tactical: string | null;
+  goal_physical: string | null;
+  goal_mental: string | null;
   created_at: string;
+};
+
+export type GroupPlayer = {
+  group_id: string;
+  player_id: string;
+  joined_at: string;
 };
 
 export type PlayerNote = {
@@ -68,7 +86,15 @@ export type PlayerNote = {
   player_id: string;
   category: NoteCategory;
   content: string;
+  note_date: string | null; // "YYYY-MM-DD" — training day this comment is about
   created_at: string;
+};
+
+export type CalendarDay = {
+  coach_id: string;
+  date: string; // "YYYY-MM-DD"
+  type: CalendarDayType;
+  label: string | null;
 };
 
 export type Exercise = {

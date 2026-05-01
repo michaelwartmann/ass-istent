@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { requireCoachId } from "@/lib/currentCoach";
-import type { BlockType, NoteCategory } from "@/lib/types";
+import type { Backhand, BlockType, Hand, NoteCategory } from "@/lib/types";
 
 // All actions run with a coach session. They thread coach_id through writes
 // and verify ownership before mutating existing rows — RLS is open at the DB
@@ -332,19 +332,34 @@ export async function addPlayerNoteAction(input: {
   playerId: string;
   category: NoteCategory;
   content: string;
+  noteDate?: string; // "YYYY-MM-DD"; defaults to today (Europe/Berlin)
 }) {
   if (!input.content.trim()) return;
   const coachId = await requireCoachId();
   const supabase = await getSupabaseServer();
   await assertPlayerOwned(supabase, input.playerId, coachId);
 
+  const noteDate = input.noteDate ?? todayBerlin();
+
   const { error } = await supabase.from("player_notes").insert({
     player_id: input.playerId,
     category: input.category,
     content: input.content.trim(),
+    note_date: noteDate,
   });
   if (error) throw new Error(error.message);
   revalidatePath(`/players/${input.playerId}`);
+  revalidatePath(`/day/${noteDate}`);
+}
+
+function todayBerlin(): string {
+  // YYYY-MM-DD in Europe/Berlin (timezone of TuB Bocholt).
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Berlin",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 export async function deletePlayerNoteAction(input: {
@@ -365,13 +380,43 @@ export async function deletePlayerNoteAction(input: {
 
 // ---------- players ----------------------------------------------
 
-export async function createPlayerAction(input: {
+export type PlayerInput = {
   firstName: string;
-  lastName?: string;
-  yearOfBirth?: number;
-  primaryGroupId?: string;
-  dominantHand?: "right" | "left";
-}) {
+  lastName?: string | null;
+  yearOfBirth?: number | null;
+  primaryGroupId?: string | null;
+  dominantHand?: Hand | null;
+  backhand?: Backhand | null;
+  level?: string | null;
+  parentContact?: string | null;
+  description?: string | null;
+  goalTechnical?: string | null;
+  goalTactical?: string | null;
+  goalPhysical?: string | null;
+  goalMental?: string | null;
+};
+
+function normalizePlayerPayload(input: PlayerInput) {
+  const trim = (s: string | null | undefined) =>
+    s == null ? null : s.trim() || null;
+  return {
+    first_name: input.firstName.trim(),
+    last_name: trim(input.lastName),
+    year_of_birth: input.yearOfBirth ?? null,
+    primary_group_id: input.primaryGroupId ?? null,
+    dominant_hand: input.dominantHand ?? null,
+    backhand: input.backhand ?? null,
+    level: trim(input.level),
+    parent_contact: trim(input.parentContact),
+    description: trim(input.description),
+    goal_technical: trim(input.goalTechnical),
+    goal_tactical: trim(input.goalTactical),
+    goal_physical: trim(input.goalPhysical),
+    goal_mental: trim(input.goalMental),
+  };
+}
+
+export async function createPlayerAction(input: PlayerInput) {
   const coachId = await requireCoachId();
   const supabase = await getSupabaseServer();
   if (input.primaryGroupId) {
@@ -380,22 +425,125 @@ export async function createPlayerAction(input: {
 
   const { data, error } = await supabase
     .from("players")
-    .insert({
-      coach_id: coachId,
-      first_name: input.firstName,
-      last_name: input.lastName ?? null,
-      year_of_birth: input.yearOfBirth ?? null,
-      primary_group_id: input.primaryGroupId ?? null,
-      dominant_hand: input.dominantHand ?? null,
-    })
+    .insert({ coach_id: coachId, ...normalizePlayerPayload(input) })
     .select("id")
     .single();
   if (error) throw new Error(error.message);
+
+  // Mirror primary_group_id into group_players so the multi-group view
+  // sees the kid right away.
+  if (input.primaryGroupId && data?.id) {
+    const { error: gpErr } = await supabase
+      .from("group_players")
+      .upsert(
+        { group_id: input.primaryGroupId, player_id: data.id },
+        { onConflict: "group_id,player_id", ignoreDuplicates: true },
+      );
+    if (gpErr) throw new Error(gpErr.message);
+  }
+
   if (input.primaryGroupId) {
     revalidatePath(`/groups/${input.primaryGroupId}`);
   }
   revalidatePath("/players");
   return data?.id as string | undefined;
+}
+
+export async function updatePlayerAction(input: {
+  playerId: string;
+  fields: PlayerInput;
+}) {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertPlayerOwned(supabase, input.playerId, coachId);
+
+  if (input.fields.primaryGroupId) {
+    await assertGroupOwned(supabase, input.fields.primaryGroupId, coachId);
+  }
+
+  const { error } = await supabase
+    .from("players")
+    .update(normalizePlayerPayload(input.fields))
+    .eq("id", input.playerId);
+  if (error) throw new Error(error.message);
+
+  // Keep group_players in sync when primary group changes — but don't
+  // remove other group memberships the player may have. Just add the new
+  // primary, if any.
+  if (input.fields.primaryGroupId) {
+    const { error: gpErr } = await supabase
+      .from("group_players")
+      .upsert(
+        {
+          group_id: input.fields.primaryGroupId,
+          player_id: input.playerId,
+        },
+        { onConflict: "group_id,player_id", ignoreDuplicates: true },
+      );
+    if (gpErr) throw new Error(gpErr.message);
+  }
+
+  revalidatePath(`/players/${input.playerId}`);
+  revalidatePath("/players");
+  if (input.fields.primaryGroupId) {
+    revalidatePath(`/groups/${input.fields.primaryGroupId}`);
+  }
+}
+
+// ---------- group ↔ player join (multi-group) -------------------
+
+export async function addPlayerToGroupAction(input: {
+  playerId: string;
+  groupId: string;
+}) {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+  await assertPlayerOwned(supabase, input.playerId, coachId);
+
+  const { error } = await supabase
+    .from("group_players")
+    .upsert(
+      { group_id: input.groupId, player_id: input.playerId },
+      { onConflict: "group_id,player_id", ignoreDuplicates: true },
+    );
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/groups/${input.groupId}`);
+  revalidatePath(`/players/${input.playerId}`);
+}
+
+export async function removePlayerFromGroupAction(input: {
+  playerId: string;
+  groupId: string;
+}) {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+  await assertPlayerOwned(supabase, input.playerId, coachId);
+
+  const { error } = await supabase
+    .from("group_players")
+    .delete()
+    .eq("group_id", input.groupId)
+    .eq("player_id", input.playerId);
+  if (error) throw new Error(error.message);
+
+  // If this group was the player's primary, clear the primary too.
+  const { data: player } = await supabase
+    .from("players")
+    .select("primary_group_id")
+    .eq("id", input.playerId)
+    .maybeSingle();
+  if (player?.primary_group_id === input.groupId) {
+    await supabase
+      .from("players")
+      .update({ primary_group_id: null })
+      .eq("id", input.playerId);
+  }
+
+  revalidatePath(`/groups/${input.groupId}`);
+  revalidatePath(`/players/${input.playerId}`);
 }
 
 // ---------- exercises (global catalog) ---------------------------
@@ -509,4 +657,57 @@ export async function setSpaceExerciseStartedAction(input: {
     .eq("exercise_id", input.exerciseId);
   if (error) throw new Error(error.message);
   revalidatePath("/exercises");
+}
+
+export type ExerciseInput = {
+  name: string;
+  category:
+    | "warm_up"
+    | "technical"
+    | "tactical"
+    | "physical"
+    | "points"
+    | "cool_down";
+  description?: string | null;
+  durationMinutes?: number | null;
+  ballType?: "green" | "orange" | "red" | "hard" | null;
+  level?: string | null;
+  groupSizeMin?: number | null;
+  groupSizeMax?: number | null;
+  equipment?: string | null;
+  tags?: string[] | null;
+};
+
+function normalizeExercisePayload(input: ExerciseInput) {
+  const trim = (s: string | null | undefined) =>
+    s == null ? null : s.trim() || null;
+  return {
+    name: input.name.trim(),
+    category: input.category,
+    description: trim(input.description),
+    duration_minutes: input.durationMinutes ?? null,
+    ball_type: input.ballType ?? null,
+    level: trim(input.level),
+    group_size_min: input.groupSizeMin ?? null,
+    group_size_max: input.groupSizeMax ?? null,
+    equipment: trim(input.equipment),
+    tags: input.tags && input.tags.length ? input.tags : null,
+  };
+}
+
+export async function updateExerciseAction(input: {
+  exerciseId: string;
+  fields: ExerciseInput;
+}) {
+  // Exercises are global; any logged-in coach can edit. Cheap guard rail
+  // to avoid anonymous edits.
+  await requireCoachId();
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase
+    .from("exercises")
+    .update(normalizeExercisePayload(input.fields))
+    .eq("id", input.exerciseId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/exercises");
+  revalidatePath(`/exercises/${input.exerciseId}`);
 }

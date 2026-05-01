@@ -46,25 +46,46 @@ create table if not exists players (
   year_of_birth int,
   primary_group_id uuid references groups(id) on delete set null,
   dominant_hand text,                 -- 'right' | 'left'
+  backhand text check (backhand in ('einhaendig', 'beidhaendig')),
   level text,
   parent_contact text,
   notes text,
+  description text,                   -- free-text "describe the player"
+  goal_technical text,                -- evergreen Lernziel · Technik
+  goal_tactical text,                 -- evergreen Lernziel · Taktik
+  goal_physical text,                 -- evergreen Lernziel · Athletik
+  goal_mental text,                   -- evergreen Lernziel · Mental
   created_at timestamptz default now()
 );
 
 create index if not exists players_primary_group_idx on players(primary_group_id);
 create index if not exists players_coach_idx on players(coach_id);
 
--- Player notes -----------------------------------------------------
+-- Group ↔ Player many-to-many (a kid can sit in N groups) ----------
+create table if not exists group_players (
+  group_id uuid not null references groups(id) on delete cascade,
+  player_id uuid not null references players(id) on delete cascade,
+  joined_at timestamptz not null default now(),
+  primary key (group_id, player_id)
+);
+
+create index if not exists group_players_group_idx on group_players(group_id);
+create index if not exists group_players_player_idx on group_players(player_id);
+
+-- Player notes (dated coach comments) ------------------------------
+-- note_date = the training day (Mi 6.5.) the comment is about, even
+-- if it was typed later. Sort/display by note_date desc.
 create table if not exists player_notes (
   id uuid primary key default uuid_generate_v4(),
   player_id uuid not null references players(id) on delete cascade,
   category text not null check (category in ('technical','tactical','physical','mental')),
   content text not null,
+  note_date date,
   created_at timestamptz default now()
 );
 
 create index if not exists player_notes_player_idx on player_notes(player_id, created_at desc);
+create index if not exists player_notes_player_date_idx on player_notes(player_id, note_date desc);
 
 -- Exercises (global catalog — shared across all coaches) -----------
 create table if not exists exercises (
@@ -120,32 +141,52 @@ create table if not exists plan_blocks (
 
 create index if not exists plan_blocks_plan_idx on plan_blocks(plan_id, order_index);
 
+-- Calendar (per-coach holidays / Schulferien / Sondertermine) ------
+create table if not exists calendar_days (
+  coach_id uuid not null references coaches(id) on delete cascade,
+  date date not null,
+  type text not null check (type in (
+    'feiertag', 'kein_unterricht', 'schulferien', 'sondertermin'
+  )),
+  label text,
+  primary key (coach_id, date)
+);
+
+create index if not exists calendar_days_coach_idx on calendar_days(coach_id);
+create index if not exists calendar_days_date_idx on calendar_days(date);
+
 -- RLS --------------------------------------------------------------
 -- Open policies — filtering is done in application code via current
 -- coach cookie. Tighten if/when Supabase Auth replaces the cookie session.
 alter table coaches enable row level security;
 alter table groups enable row level security;
 alter table players enable row level security;
+alter table group_players enable row level security;
 alter table player_notes enable row level security;
 alter table exercises enable row level security;
 alter table coach_exercises enable row level security;
 alter table training_plans enable row level security;
 alter table plan_blocks enable row level security;
+alter table calendar_days enable row level security;
 
 drop policy if exists "open all" on coaches;
 drop policy if exists "open all" on groups;
 drop policy if exists "open all" on players;
+drop policy if exists "open all" on group_players;
 drop policy if exists "open all" on player_notes;
 drop policy if exists "open all" on exercises;
 drop policy if exists "open all" on coach_exercises;
 drop policy if exists "open all" on training_plans;
 drop policy if exists "open all" on plan_blocks;
+drop policy if exists "open all" on calendar_days;
 
 create policy "open all" on coaches          for all using (true) with check (true);
 create policy "open all" on groups           for all using (true) with check (true);
 create policy "open all" on players          for all using (true) with check (true);
+create policy "open all" on group_players    for all using (true) with check (true);
 create policy "open all" on player_notes     for all using (true) with check (true);
 create policy "open all" on exercises        for all using (true) with check (true);
 create policy "open all" on coach_exercises  for all using (true) with check (true);
 create policy "open all" on training_plans   for all using (true) with check (true);
 create policy "open all" on plan_blocks      for all using (true) with check (true);
+create policy "open all" on calendar_days    for all using (true) with check (true);

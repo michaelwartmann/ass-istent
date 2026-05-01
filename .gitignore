@@ -40,3 +40,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 !.env.local.example
+
+# local-only personal data (rosters, schedules, photos with PII —
+# never check in. The app reads its data from Supabase, not from /public.)
+/public/*.jpeg
+/public/*.jpg
+/public/*.heic
+/public/*.webp
+/public/*.xlsx
+/public/*.pdf

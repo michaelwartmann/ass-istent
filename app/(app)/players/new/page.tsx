@@ -1,6 +1,6 @@
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { requireCoachId } from "@/lib/currentCoach";
-import { NewPlayerForm } from "./new-player-form";
+import { PlayerForm } from "../player-form";
 import type { Group } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -27,9 +27,9 @@ export default async function NewPlayerPage(props: PageProps<"/players/new">) {
         </p>
         <h1 className="text-2xl font-semibold tracking-tight">Anlegen</h1>
       </div>
-      <NewPlayerForm
+      <PlayerForm
+        mode={{ kind: "create", initialGroupId }}
         groups={(groups ?? []) as Pick<Group, "id" | "name">[]}
-        initialGroupId={initialGroupId}
       />
     </div>
   );
