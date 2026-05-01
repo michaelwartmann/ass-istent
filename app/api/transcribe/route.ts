@@ -43,6 +43,9 @@ export async function POST(request: Request) {
   );
   out.append("model", "openai/whisper-1");
   out.append("language", "de");
+  // Be explicit: ask OpenRouter for a JSON envelope. Without this some
+  // backends fall back to "text" mode and return the bare transcript.
+  out.append("response_format", "json");
   out.append(
     "prompt",
     "Tennistraining: Vorhand, Rückhand, Aufschlag, Slice, Topspin, Treffpunkt, Ausholbewegung, Beinarbeit, Cross, Long-Line.",
@@ -60,6 +63,7 @@ export async function POST(request: Request) {
 
   const raw = await upstream.text();
   if (!upstream.ok) {
+    console.error("[/api/transcribe] upstream error", upstream.status, raw.slice(0, 500));
     return NextResponse.json(
       {
         error: `OpenRouter returned ${upstream.status}`,
@@ -69,15 +73,28 @@ export async function POST(request: Request) {
     );
   }
 
-  let parsed: { text?: string } = {};
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    return NextResponse.json(
-      { error: "OpenRouter returned non-JSON", detail: raw.slice(0, 500) },
-      { status: 502 },
-    );
+  // Whisper's `response_format=json` returns `{"text":"..."}`. But
+  // OpenRouter sometimes proxies the response as plain text (the bare
+  // transcript) — in that case JSON.parse blows up on the first
+  // non-JSON character (e.g. "No number after minus sign in JSON at
+  // position 1" when the transcript starts with a dash). Fall back to
+  // treating the body as the transcript text.
+  const trimmed = raw.trim();
+  let text = "";
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(trimmed) as { text?: string };
+      text = (parsed.text ?? "").toString();
+    } catch {
+      console.error(
+        "[/api/transcribe] JSON-shaped body failed to parse",
+        trimmed.slice(0, 200),
+      );
+      text = trimmed;
+    }
+  } else {
+    text = trimmed;
   }
 
-  return NextResponse.json({ text: (parsed.text ?? "").trim() });
+  return NextResponse.json({ text: text.trim() });
 }
