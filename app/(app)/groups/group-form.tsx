@@ -153,7 +153,9 @@ export function GroupForm({ mode }: { mode: Mode }) {
           onValueChange={(v) => v && setDay(Number(v))}
         >
           <SelectTrigger>
-            <SelectValue />
+            <SelectValue>
+              {(v: string) => DAYS_LONG_DE[Number(v) - 1] ?? ""}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {DAYS_LONG_DE.map((label, i) => (
@@ -210,7 +212,9 @@ export function GroupForm({ mode }: { mode: Mode }) {
           <Label>Ball</Label>
           <Select value={ball} onValueChange={(v) => setBall(v ?? "none")}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue>
+                {(v: string) => BALLS.find((b) => b.value === v)?.label ?? ""}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {BALLS.map((b) => (

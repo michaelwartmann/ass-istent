@@ -294,7 +294,11 @@ function FloatingAddButton({
               onValueChange={(v) => v && setCategory(v as NoteCategory)}
             >
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue>
+                  {(v: NoteCategory) =>
+                    CATEGORIES.find((c) => c.value === v)?.label ?? ""
+                  }
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {CATEGORIES.map((c) => (

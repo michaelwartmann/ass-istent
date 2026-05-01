@@ -168,7 +168,13 @@ export function PlayerForm({
             onValueChange={(v) => setGroupId(v ?? "none")}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Gruppe wählen" />
+              <SelectValue placeholder="Gruppe wählen">
+                {(v: string) =>
+                  v === "none"
+                    ? "— keine —"
+                    : (groups.find((g) => g.id === v)?.name ?? "")
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none">— keine —</SelectItem>
@@ -187,7 +193,11 @@ export function PlayerForm({
           <Label>Hand</Label>
           <Select value={hand} onValueChange={(v) => setHand(v ?? "none")}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue>
+                {(v: string) =>
+                  HAND_OPTIONS.find((o) => o.value === v)?.label ?? ""
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {HAND_OPTIONS.map((o) => (
@@ -205,7 +215,11 @@ export function PlayerForm({
             onValueChange={(v) => setBackhand(v ?? "none")}
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue>
+                {(v: string) =>
+                  BACKHAND_OPTIONS.find((o) => o.value === v)?.label ?? ""
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {BACKHAND_OPTIONS.map((o) => (

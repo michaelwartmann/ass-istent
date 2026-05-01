@@ -140,7 +140,11 @@ export function ExerciseForm({ mode }: { mode: Mode }) {
             onValueChange={(v) => v && setCategory(v as ExerciseCategory)}
           >
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue>
+                {(v: ExerciseCategory) =>
+                  CATEGORIES.find((c) => c.value === v)?.label ?? ""
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {CATEGORIES.map((c) => (
@@ -155,7 +159,11 @@ export function ExerciseForm({ mode }: { mode: Mode }) {
           <Label>Ball</Label>
           <Select value={ball} onValueChange={(v) => setBall(v ?? "none")}>
             <SelectTrigger>
-              <SelectValue />
+              <SelectValue>
+                {(v: string) =>
+                  BALLS.find((b) => b.value === v)?.label ?? ""
+                }
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {BALLS.map((b) => (
