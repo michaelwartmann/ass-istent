@@ -4,10 +4,17 @@ import { requireCoachId } from "@/lib/currentCoach";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const OPENROUTER_URL =
-  "https://openrouter.ai/api/v1/audio/transcriptions";
+// OpenRouter's /audio/transcriptions returns 404 "No successful provider
+// responses." for both openai/whisper-1 and openai/whisper-large-v3 — the
+// route exists in their docs but no provider is actually wired up. So we
+// transcribe via /chat/completions with an audio-input multimodal model
+// instead. Gemini 2.0 Flash is fast, cheap (~$0.10/M tokens), excellent
+// German, and definitely live in OpenRouter's models registry.
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const TRANSCRIPTION_MODEL = "google/gemini-2.0-flash-001";
 
-// Map a MIME type or filename to OpenRouter's `format` field.
+// Map a MIME type or filename to the audio `format` field accepted by
+// OpenRouter's input_audio content block.
 function detectFormat(mime: string, name: string): string {
   const m = mime.toLowerCase();
   if (m.includes("webm")) return "webm";
@@ -30,6 +37,13 @@ function detectFormat(mime: string, name: string): string {
   }
   return "webm";
 }
+
+const TRANSCRIPTION_PROMPT =
+  "Transkribiere das deutsche Audio wörtlich. Gib NUR den gesprochenen " +
+  "Text zurück, ohne Anführungszeichen, ohne Kommentare, ohne Zeitstempel. " +
+  "Wenn das Audio leer ist, gib einen leeren String zurück. " +
+  "Kontext: Tennistraining (Vorhand, Rückhand, Aufschlag, Slice, Topspin, " +
+  "Treffpunkt, Cross, Long-Line).";
 
 export async function POST(request: Request) {
   await requireCoachId();
@@ -64,10 +78,6 @@ export async function POST(request: Request) {
   const buf = Buffer.from(await file.arrayBuffer());
   const b64 = buf.toString("base64");
 
-  // OpenRouter's /audio/transcriptions takes a JSON body with the audio
-  // base64-encoded under input_audio.data. NOT multipart/form-data —
-  // sending multipart caused OpenRouter's parser to choke on the boundary
-  // delimiter ("No number after minus sign in JSON at position 1").
   const upstream = await fetch(OPENROUTER_URL, {
     method: "POST",
     headers: {
@@ -77,9 +87,18 @@ export async function POST(request: Request) {
       "X-Title": "ass-istent",
     },
     body: JSON.stringify({
-      model: "openai/whisper-1",
-      input_audio: { data: b64, format },
-      language: "de",
+      model: TRANSCRIPTION_MODEL,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "input_audio", input_audio: { data: b64, format } },
+            { type: "text", text: TRANSCRIPTION_PROMPT },
+          ],
+        },
+      ],
+      // Keep responses short and deterministic.
+      temperature: 0,
     }),
   });
 
@@ -101,15 +120,25 @@ export async function POST(request: Request) {
 
   let text = "";
   try {
-    const parsed = JSON.parse(raw) as { text?: string };
-    text = (parsed.text ?? "").toString();
+    const parsed = JSON.parse(raw) as {
+      choices?: Array<{
+        message?: { content?: string | Array<{ text?: string }> };
+      }>;
+    };
+    const content = parsed.choices?.[0]?.message?.content;
+    if (typeof content === "string") {
+      text = content;
+    } else if (Array.isArray(content)) {
+      text = content.map((c) => c.text ?? "").join("");
+    }
   } catch {
     console.error(
       "[/api/transcribe] body did not parse as JSON",
       raw.slice(0, 200),
     );
-    text = raw.trim();
   }
 
-  return NextResponse.json({ text: text.trim() });
+  // The model occasionally wraps its reply in quotes; strip them.
+  text = text.trim().replace(/^["„»]+|["“«]+$/g, "").trim();
+  return NextResponse.json({ text });
 }
