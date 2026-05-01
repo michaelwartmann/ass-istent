@@ -174,6 +174,11 @@ function FloatingAddButton({
   const [pending, startTransition] = useTransition();
   const recognitionRef = useRef<SR | null>(null);
   const baseTextRef = useRef<string>("");
+  // Tracks the highest index in event.results whose final transcript we've
+  // already absorbed. Some browsers (Chrome Android) fire onresult with
+  // resultIndex=0 every time — without this guard we'd re-append previously-
+  // finalized utterances and the textarea would echo every phrase.
+  const lastFinalIdxRef = useRef<number>(-1);
 
   useEffect(() => {
     if (open) setCategory(defaultCategory);
@@ -203,25 +208,37 @@ function FloatingAddButton({
     rec.continuous = true;
     rec.interimResults = true;
     baseTextRef.current = content;
+    lastFinalIdxRef.current = -1;
 
     rec.onresult = (event) => {
       let interim = "";
-      let finalText = "";
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      let newFinal = "";
+      // Walk the entire results list, but only absorb a final transcript
+      // at index `i` when we haven't seen that index before. This makes the
+      // handler robust to browsers that fire with resultIndex=0 every time.
+      for (let i = 0; i < event.results.length; i++) {
         const r = event.results[i];
         const text = r[0].transcript;
-        if (r.isFinal) finalText += text;
-        else interim += text;
+        if (r.isFinal) {
+          if (i > lastFinalIdxRef.current) {
+            newFinal += text;
+            lastFinalIdxRef.current = i;
+          }
+        } else {
+          interim += text;
+        }
+      }
+      if (newFinal) {
+        const sep =
+          baseTextRef.current && !baseTextRef.current.endsWith(" ") ? " " : "";
+        baseTextRef.current = `${baseTextRef.current}${sep}${newFinal}`.trim();
       }
       const sep =
         baseTextRef.current && !baseTextRef.current.endsWith(" ") ? " " : "";
-      if (finalText) {
-        baseTextRef.current = `${baseTextRef.current}${sep}${finalText}`.trim();
-      }
       setContent(
-        finalText
-          ? baseTextRef.current
-          : `${baseTextRef.current}${sep}${interim}`,
+        interim
+          ? `${baseTextRef.current}${sep}${interim}`
+          : baseTextRef.current,
       );
     };
     rec.onerror = (e) => {
