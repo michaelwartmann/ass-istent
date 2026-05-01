@@ -7,6 +7,30 @@ export const dynamic = "force-dynamic";
 const OPENROUTER_URL =
   "https://openrouter.ai/api/v1/audio/transcriptions";
 
+// Map a MIME type or filename to OpenRouter's `format` field.
+function detectFormat(mime: string, name: string): string {
+  const m = mime.toLowerCase();
+  if (m.includes("webm")) return "webm";
+  if (m.includes("mp4") || m.includes("m4a") || m.includes("aac")) return "mp4";
+  if (m.includes("wav") || m.includes("wave")) return "wav";
+  if (m.includes("mpeg") || m.includes("mp3")) return "mp3";
+  if (m.includes("ogg")) return "ogg";
+  if (m.includes("flac")) return "flac";
+  const ext = name.toLowerCase().split(".").pop();
+  if (
+    ext === "webm" ||
+    ext === "wav" ||
+    ext === "mp3" ||
+    ext === "mp4" ||
+    ext === "m4a" ||
+    ext === "ogg" ||
+    ext === "flac"
+  ) {
+    return ext === "m4a" ? "mp4" : ext;
+  }
+  return "webm";
+}
+
 export async function POST(request: Request) {
   await requireCoachId();
 
@@ -35,35 +59,37 @@ export async function POST(request: Request) {
     );
   }
 
-  const out = new FormData();
-  out.append(
-    "file",
-    file,
-    file instanceof File && file.name ? file.name : "chunk.webm",
-  );
-  out.append("model", "openai/whisper-1");
-  out.append("language", "de");
-  // Be explicit: ask OpenRouter for a JSON envelope. Without this some
-  // backends fall back to "text" mode and return the bare transcript.
-  out.append("response_format", "json");
-  out.append(
-    "prompt",
-    "Tennistraining: Vorhand, Rückhand, Aufschlag, Slice, Topspin, Treffpunkt, Ausholbewegung, Beinarbeit, Cross, Long-Line.",
-  );
+  const name = file instanceof File ? file.name : "";
+  const format = detectFormat(file.type || "", name);
+  const buf = Buffer.from(await file.arrayBuffer());
+  const b64 = buf.toString("base64");
 
+  // OpenRouter's /audio/transcriptions takes a JSON body with the audio
+  // base64-encoded under input_audio.data. NOT multipart/form-data —
+  // sending multipart caused OpenRouter's parser to choke on the boundary
+  // delimiter ("No number after minus sign in JSON at position 1").
   const upstream = await fetch(OPENROUTER_URL, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
       "HTTP-Referer": "https://ass-istent.vercel.app",
       "X-Title": "ass-istent",
     },
-    body: out,
+    body: JSON.stringify({
+      model: "openai/whisper-1",
+      input_audio: { data: b64, format },
+      language: "de",
+    }),
   });
 
   const raw = await upstream.text();
   if (!upstream.ok) {
-    console.error("[/api/transcribe] upstream error", upstream.status, raw.slice(0, 500));
+    console.error(
+      "[/api/transcribe] upstream error",
+      upstream.status,
+      raw.slice(0, 500),
+    );
     return NextResponse.json(
       {
         error: `OpenRouter returned ${upstream.status}`,
@@ -73,27 +99,16 @@ export async function POST(request: Request) {
     );
   }
 
-  // Whisper's `response_format=json` returns `{"text":"..."}`. But
-  // OpenRouter sometimes proxies the response as plain text (the bare
-  // transcript) — in that case JSON.parse blows up on the first
-  // non-JSON character (e.g. "No number after minus sign in JSON at
-  // position 1" when the transcript starts with a dash). Fall back to
-  // treating the body as the transcript text.
-  const trimmed = raw.trim();
   let text = "";
-  if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
-    try {
-      const parsed = JSON.parse(trimmed) as { text?: string };
-      text = (parsed.text ?? "").toString();
-    } catch {
-      console.error(
-        "[/api/transcribe] JSON-shaped body failed to parse",
-        trimmed.slice(0, 200),
-      );
-      text = trimmed;
-    }
-  } else {
-    text = trimmed;
+  try {
+    const parsed = JSON.parse(raw) as { text?: string };
+    text = (parsed.text ?? "").toString();
+  } catch {
+    console.error(
+      "[/api/transcribe] body did not parse as JSON",
+      raw.slice(0, 200),
+    );
+    text = raw.trim();
   }
 
   return NextResponse.json({ text: text.trim() });
