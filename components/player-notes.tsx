@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { format, parseISO } from "date-fns";
 import { de } from "date-fns/locale";
-import { Mic, MicOff, Plus, Trash2 } from "lucide-react";
+import { Loader2, Mic, MicOff, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,7 @@ import {
   addPlayerNoteAction,
   deletePlayerNoteAction,
 } from "@/lib/actions";
+import { useDictation } from "@/lib/use-dictation";
 import type { NoteCategory, PlayerNote } from "@/lib/types";
 
 const CATEGORIES: { value: NoteCategory; label: string }[] = [
@@ -36,34 +37,6 @@ const CATEGORIES: { value: NoteCategory; label: string }[] = [
   { value: "physical", label: "Athletik" },
   { value: "mental", label: "Mental" },
 ];
-
-type SR = {
-  start: () => void;
-  stop: () => void;
-  abort: () => void;
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((e: SpeechResultEvent) => void) | null;
-  onerror: ((e: { error?: string }) => void) | null;
-  onend: (() => void) | null;
-};
-type SpeechResultEvent = {
-  resultIndex: number;
-  results: ArrayLike<{
-    isFinal: boolean;
-    0: { transcript: string };
-  }>;
-};
-
-function getRecognitionCtor(): (new () => SR) | null {
-  if (typeof window === "undefined") return null;
-  const w = window as unknown as {
-    SpeechRecognition?: new () => SR;
-    webkitSpeechRecognition?: new () => SR;
-  };
-  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
-}
 
 export function PlayerNotes({
   playerId,
@@ -159,6 +132,13 @@ function NoteItem({ note, playerId }: { note: PlayerNote; playerId: string }) {
   );
 }
 
+function appendChunk(prev: string, addition: string): string {
+  if (!addition) return prev;
+  if (!prev) return addition;
+  const sep = /[\s\.,!?;:]$/.test(prev) ? "" : " ";
+  return `${prev}${sep}${addition}`;
+}
+
 function FloatingAddButton({
   playerId,
   defaultCategory,
@@ -169,95 +149,15 @@ function FloatingAddButton({
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<NoteCategory>(defaultCategory);
   const [content, setContent] = useState("");
-  const [listening, setListening] = useState(false);
-  const [supported, setSupported] = useState(true);
   const [pending, startTransition] = useTransition();
-  const recognitionRef = useRef<SR | null>(null);
-  const baseTextRef = useRef<string>("");
-  // Tracks the highest index in event.results whose final transcript we've
-  // already absorbed. Some browsers (Chrome Android) fire onresult with
-  // resultIndex=0 every time — without this guard we'd re-append previously-
-  // finalized utterances and the textarea would echo every phrase.
-  const lastFinalIdxRef = useRef<number>(-1);
+
+  const dictation = useDictation({
+    onText: (text) => setContent((prev) => appendChunk(prev, text)),
+  });
 
   useEffect(() => {
     if (open) setCategory(defaultCategory);
   }, [open, defaultCategory]);
-
-  useEffect(() => {
-    setSupported(!!getRecognitionCtor());
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      recognitionRef.current?.abort();
-      recognitionRef.current = null;
-    };
-  }, []);
-
-  function startVoice() {
-    const Ctor = getRecognitionCtor();
-    if (!Ctor) {
-      toast.error(
-        "Spracheingabe wird in diesem Browser nicht unterstützt.",
-      );
-      return;
-    }
-    const rec = new Ctor();
-    rec.lang = "de-DE";
-    rec.continuous = true;
-    rec.interimResults = true;
-    baseTextRef.current = content;
-    lastFinalIdxRef.current = -1;
-
-    rec.onresult = (event) => {
-      let interim = "";
-      let newFinal = "";
-      // Walk the entire results list, but only absorb a final transcript
-      // at index `i` when we haven't seen that index before. This makes the
-      // handler robust to browsers that fire with resultIndex=0 every time.
-      for (let i = 0; i < event.results.length; i++) {
-        const r = event.results[i];
-        const text = r[0].transcript;
-        if (r.isFinal) {
-          if (i > lastFinalIdxRef.current) {
-            newFinal += text;
-            lastFinalIdxRef.current = i;
-          }
-        } else {
-          interim += text;
-        }
-      }
-      if (newFinal) {
-        const sep =
-          baseTextRef.current && !baseTextRef.current.endsWith(" ") ? " " : "";
-        baseTextRef.current = `${baseTextRef.current}${sep}${newFinal}`.trim();
-      }
-      const sep =
-        baseTextRef.current && !baseTextRef.current.endsWith(" ") ? " " : "";
-      setContent(
-        interim
-          ? `${baseTextRef.current}${sep}${interim}`
-          : baseTextRef.current,
-      );
-    };
-    rec.onerror = (e) => {
-      toast.error(`Spracheingabe-Fehler: ${e.error ?? "unbekannt"}`);
-      setListening(false);
-    };
-    rec.onend = () => {
-      setListening(false);
-    };
-
-    rec.start();
-    recognitionRef.current = rec;
-    setListening(true);
-  }
-
-  function stopVoice() {
-    recognitionRef.current?.stop();
-    setListening(false);
-  }
 
   function save() {
     const text = content.trim();
@@ -281,10 +181,7 @@ function FloatingAddButton({
     <Sheet
       open={open}
       onOpenChange={(o) => {
-        if (!o) {
-          recognitionRef.current?.abort();
-          setListening(false);
-        }
+        if (!o && dictation.listening) dictation.stop();
         setOpen(o);
       }}
     >
@@ -337,35 +234,7 @@ function FloatingAddButton({
               className="min-h-40 flex-1 resize-none"
               autoFocus
             />
-            <div className="flex items-center justify-between">
-              <Button
-                type="button"
-                variant={listening ? "default" : "outline"}
-                size="sm"
-                onClick={listening ? stopVoice : startVoice}
-                disabled={!supported}
-                className={
-                  listening
-                    ? "bg-[var(--clay)] text-primary-foreground hover:bg-[var(--clay)]/90"
-                    : ""
-                }
-              >
-                {listening ? (
-                  <>
-                    <MicOff className="mr-1 h-4 w-4 animate-pulse" /> Stopp
-                  </>
-                ) : (
-                  <>
-                    <Mic className="mr-1 h-4 w-4" /> Diktieren
-                  </>
-                )}
-              </Button>
-              {!supported ? (
-                <span className="text-[11px] text-muted-foreground">
-                  Spracheingabe nicht unterstützt
-                </span>
-              ) : null}
-            </div>
+            <DictationBar dictation={dictation} />
           </div>
         </div>
         <SheetFooter className="flex-row justify-end gap-2 border-t pt-3">
@@ -388,5 +257,49 @@ function FloatingAddButton({
         </SheetFooter>
       </SheetContent>
     </Sheet>
+  );
+}
+
+export function DictationBar({
+  dictation,
+}: {
+  dictation: ReturnType<typeof useDictation>;
+}) {
+  const { supported, listening, pendingChunks, start, stop } = dictation;
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <Button
+        type="button"
+        variant={listening ? "default" : "outline"}
+        size="sm"
+        onClick={listening ? stop : () => void start()}
+        disabled={!supported}
+        className={
+          listening
+            ? "bg-[var(--clay)] text-primary-foreground hover:bg-[var(--clay)]/90"
+            : ""
+        }
+      >
+        {listening ? (
+          <>
+            <MicOff className="mr-1 h-4 w-4 animate-pulse" /> Stopp
+          </>
+        ) : (
+          <>
+            <Mic className="mr-1 h-4 w-4" /> Diktieren
+          </>
+        )}
+      </Button>
+      {pendingChunks > 0 ? (
+        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          wird transkribiert…
+        </span>
+      ) : !supported ? (
+        <span className="text-[11px] text-muted-foreground">
+          Aufnahme nicht unterstützt
+        </span>
+      ) : null}
+    </div>
   );
 }
