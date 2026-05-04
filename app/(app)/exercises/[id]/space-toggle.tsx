@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { Plus, Sprout, Trash2, Zap } from "lucide-react";
+import { Plus, Star, Trash2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   addExerciseToSpaceAction,
@@ -59,16 +59,20 @@ export function SpaceToggle({
           color: started ? "var(--clay)" : "var(--muted-foreground)",
         }}
       >
-        {started ? <Zap className="h-4 w-4" /> : <Sprout className="h-4 w-4" />}
+        {started ? (
+          <Zap className="h-4 w-4" />
+        ) : (
+          <Star className="h-4 w-4 text-amber-500" />
+        )}
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium">
-          {started ? "Im Einsatz" : "Samen"}
+          {started ? "Im Einsatz" : "Favorit"}
         </p>
         <p className="text-[11px] text-muted-foreground">
           {started
             ? "In aktiver Rotation"
-            : "Im Bestand, noch nicht in Verwendung"}
+            : "Als Favorit gespeichert"}
         </p>
       </div>
       <Button
@@ -81,8 +85,8 @@ export function SpaceToggle({
       >
         {started ? (
           <>
-            <Sprout className="mr-1 h-3 w-3" />
-            Auf Samen
+            <Star className="mr-1 h-3 w-3" />
+            Als Favorit
           </>
         ) : (
           <>

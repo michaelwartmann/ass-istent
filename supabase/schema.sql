@@ -100,13 +100,14 @@ create table if not exists exercises (
   duration_minutes int,
   equipment text,
   tags text[],
+  video_url text,
   created_at timestamptz default now()
 );
 
 create index if not exists exercises_category_idx on exercises(category);
 
 -- Coach exercise space (per-coach selection from global catalog) ---
--- started_at IS NULL  → "Samen" (saved for later)
+-- started_at IS NULL  → "Favorit" (saved for later)
 -- started_at NOT NULL → "Im Einsatz" (in active rotation)
 create table if not exists coach_exercises (
   coach_id uuid not null references coaches(id) on delete cascade,

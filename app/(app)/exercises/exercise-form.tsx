@@ -57,8 +57,15 @@ export function ExerciseForm({ mode }: { mode: Mode }) {
   );
   const [ball, setBall] = useState<string>(init?.ball_type ?? "none");
   const [level, setLevel] = useState(init?.level ?? "");
+  const [groupMin, setGroupMin] = useState(
+    init?.group_size_min != null ? String(init.group_size_min) : "",
+  );
+  const [groupMax, setGroupMax] = useState(
+    init?.group_size_max != null ? String(init.group_size_max) : "",
+  );
   const [equipment, setEquipment] = useState(init?.equipment ?? "");
   const [tags, setTags] = useState((init?.tags ?? []).join(", "));
+  const [videoUrl, setVideoUrl] = useState(init?.video_url ?? "");
 
   function buildInput(): ExerciseInput | null {
     if (!name.trim()) {
@@ -78,11 +85,14 @@ export function ExerciseForm({ mode }: { mode: Mode }) {
           ? (ball as BallType)
           : null,
       level: level || null,
+      groupSizeMin: groupMin ? Number(groupMin) : null,
+      groupSizeMax: groupMax ? Number(groupMax) : null,
       equipment: equipment || null,
       tags: tags
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean),
+      videoUrl: videoUrl || null,
     };
   }
 
@@ -100,8 +110,11 @@ export function ExerciseForm({ mode }: { mode: Mode }) {
             durationMinutes: fields.durationMinutes ?? undefined,
             ballType: fields.ballType ?? undefined,
             level: fields.level ?? undefined,
+            groupSizeMin: fields.groupSizeMin ?? undefined,
+            groupSizeMax: fields.groupSizeMax ?? undefined,
             equipment: fields.equipment ?? undefined,
             tags: fields.tags ?? undefined,
+            videoUrl: fields.videoUrl ?? undefined,
           });
           toast.success("Übung gespeichert");
           if (id) router.push(`/exercises/${id}`);
@@ -191,7 +204,27 @@ export function ExerciseForm({ mode }: { mode: Mode }) {
             id="level"
             value={level}
             onChange={(e) => setLevel(e.target.value)}
-            placeholder="Anfänger / LK 18 / …"
+            placeholder="Erwachsene / LK 18 / …"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <Label htmlFor="groupMin">Gruppe min</Label>
+          <Input
+            id="groupMin"
+            inputMode="numeric"
+            value={groupMin}
+            onChange={(e) => setGroupMin(e.target.value)}
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="groupMax">Gruppe max</Label>
+          <Input
+            id="groupMax"
+            inputMode="numeric"
+            value={groupMax}
+            onChange={(e) => setGroupMax(e.target.value)}
           />
         </div>
       </div>
@@ -220,6 +253,16 @@ export function ExerciseForm({ mode }: { mode: Mode }) {
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="cross, vh, jugend"
+        />
+      </div>
+      <div className="space-y-1">
+        <Label htmlFor="videoUrl">Video-URL</Label>
+        <Input
+          id="videoUrl"
+          type="url"
+          value={videoUrl}
+          onChange={(e) => setVideoUrl(e.target.value)}
+          placeholder="https://www.youtube.com/watch?v=…"
         />
       </div>
       <div className="flex items-center justify-end gap-2 pt-2">

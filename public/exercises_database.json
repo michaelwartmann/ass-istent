@@ -1,0 +1,1958 @@
+{
+  "schemaVersion": "1.0",
+  "generatedOn": "2026-05-03",
+  "language": "de",
+  "notes": "Übungs-Datenbank für ass-istent. 120 Übungen, ~30 pro Spielstufe. Methodik nach KNLTB Tenniskids (Oranje/Groen) und KNLTB A-Opleiding (Hart/Erwachsene). Schema basiert auf den im App sichtbaren Feldern: title, description, category, level, durationMin. Equipment, playerCount, focus und videoUrl sind optional und können beim Import ignoriert werden, falls die App-Felder anders heißen. Ein Mapping kann beim Import angepasst werden.",
+  "categories": [
+    "Warm-up",
+    "Athletik",
+    "Technik",
+    "Taktik",
+    "Punktspiel",
+    "Cool-down"
+  ],
+  "levels": [
+    "Orange",
+    "Grün",
+    "Hart",
+    "Erwachsene"
+  ],
+  "fieldMapping": {
+    "id": "Eindeutiger Slug — kann beim Import durch UUID ersetzt werden.",
+    "title": "Anzeigename der Übung.",
+    "description": "Lauffähige Beschreibung in 1–3 Sätzen.",
+    "category": "Eine der sechs Kategorien.",
+    "level": "Spielstufe — Orange, Grün, Hart oder Erwachsene.",
+    "durationMin": "Geplante Dauer in Minuten (Richtwert).",
+    "equipment": "Hilfsmittel (Pylonen, Hütchen, Leiter, Reifen…).",
+    "playerCount": "Empfohlene Spielerzahl auf einem Platz.",
+    "focus": "Schwerpunkt-Tags (FH, RH, Aufschlag…).",
+    "videoUrl": "Optionaler Demo-Link, sonst null."
+  },
+  "exercises": [
+    {
+      "id": "orange-ballschule-mit-dem-schlager",
+      "title": "Ballschule mit dem Schläger",
+      "description": "Jedes Kind balanciert den Ball auf den Saiten gehend, dann Ball nach oben prellen, dann Ball auf den Boden tippen. Steigerung: jede Variante 10x ohne Verlust.",
+      "category": "Warm-up",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [
+        "Schläger",
+        "Ball pro Kind"
+      ],
+      "playerCount": "1–6",
+      "focus": [
+        "Ballgefühl",
+        "Koordination"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=qX07RV8JFaY"
+    },
+    {
+      "id": "orange-bauernhof-lauf",
+      "title": "Bauernhof-Lauf",
+      "description": "Trainer ruft Tiere: Hase = Hopser, Krebs = Rückwärts, Frosch = Hocksprung. Spieler bewegen sich frei im Midcourt-Feld und reagieren auf den Ruf.",
+      "category": "Warm-up",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "4–8",
+      "focus": [
+        "Bewegung",
+        "Reaktion"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=jBfp01vjfWM"
+    },
+    {
+      "id": "orange-fang-den-ball",
+      "title": "Fang den Ball",
+      "description": "Trainer wirft den Ball aus der Hand schräg vor das Kind, das Kind fängt nach einem Aufsprung mit beiden Händen. Beide Seiten, jeweils 8 Würfe.",
+      "category": "Warm-up",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Werfer",
+      "focus": [
+        "Ballgefühl",
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=NzhwJ3xE-ww"
+    },
+    {
+      "id": "orange-mini-tennis-im-aufschlagfeld",
+      "title": "Mini-Tennis im Aufschlagfeld",
+      "description": "Cross-Rallye nur im Aufschlagfeld, Schläger kurz fassen. Ziel: 5 Bälle hin und her ohne Pause. Wer 10 schafft, bekommt einen Pluspunkt.",
+      "category": "Warm-up",
+      "level": "Orange",
+      "durationMin": 6,
+      "equipment": [
+        "Hütchen für Felder"
+      ],
+      "playerCount": "2 pro Halbplatz",
+      "focus": [
+        "Treffpunkt",
+        "Ballkontrolle"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=uuKtDEXCVnA"
+    },
+    {
+      "id": "orange-rauber-und-polizei",
+      "title": "Räuber und Polizei",
+      "description": "Ein Spieler führt mit gedribbeltem Ball, der andere muss mit eigenem Ball folgen ohne Ball zu verlieren. Wechsel nach 30 Sek. Spielerisch das Auge schulen.",
+      "category": "Warm-up",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [
+        "Ball pro Kind"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Ballgefühl",
+        "Wahrnehmung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=z3T8vZL93tU"
+    },
+    {
+      "id": "orange-koordinationsleiter-basis",
+      "title": "Koordinationsleiter Basis",
+      "description": "Zwei Runden: 1) ein Fuß pro Sprosse, 2) zwei Füße pro Sprosse, 3) Side-Step rechts, 4) Side-Step links. Jede Runde mit kurzer Sprint-Verlängerung von 3 m.",
+      "category": "Athletik",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [
+        "Koordinationsleiter"
+      ],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Footwork"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=s9twENtOkwk"
+    },
+    {
+      "id": "orange-reifen-sprung-parcours",
+      "title": "Reifen-Sprung-Parcours",
+      "description": "5 Reifen in Versatz auflegen. Spieler springt einbeinig in jeden Reifen, dreht sich am Ende um und kommt beidbeinig zurück. 3 Durchgänge.",
+      "category": "Athletik",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [
+        "5 Reifen"
+      ],
+      "playerCount": "1 nacheinander",
+      "focus": [
+        "Sprungkraft",
+        "Balance"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=osArBTj4Mf8"
+    },
+    {
+      "id": "orange-pylonen-spiegelspiel",
+      "title": "Pylonen-Spiegelspiel",
+      "description": "Zwei Spieler stehen sich an der T-Linie gegenüber. Einer führt seitlich zu Pylonen rechts/links, der andere spiegelt. Wer eine Sek. zu spät reagiert, verliert ein Leben (3 Leben).",
+      "category": "Athletik",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [
+        "4 Pylonen"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Reaktion",
+        "Splitstep"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=jBfp01vjfWM"
+    },
+    {
+      "id": "orange-ballfang-reaktion",
+      "title": "Ballfang-Reaktion",
+      "description": "Spieler steht 2 m vor Trainer in Splitstep-Stellung. Trainer rollt Ball nach links/rechts ohne Ankündigung. Spieler bewegt sich seitlich und hebt den Ball auf. 12 Bälle.",
+      "category": "Athletik",
+      "level": "Orange",
+      "durationMin": 4,
+      "equipment": [
+        "6 Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Reaktion",
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=6qwVWIYRW3c"
+    },
+    {
+      "id": "orange-stafette-mit-ball",
+      "title": "Stafette mit Ball",
+      "description": "Zwei Teams, jeweils ein Slalom mit Pylonen. Ball auf den Saiten balancieren bis ans Ende und zurück, dann Übergabe. Wer zuerst alle durch hat, gewinnt.",
+      "category": "Athletik",
+      "level": "Orange",
+      "durationMin": 6,
+      "equipment": [
+        "Pylonen",
+        "Schläger",
+        "Ball"
+      ],
+      "playerCount": "Teams 3+",
+      "focus": [
+        "Ballgefühl",
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=3hJAkEB4MEo"
+    },
+    {
+      "id": "orange-vorhand-cross-aus-dem-korb",
+      "title": "Vorhand cross aus dem Korb",
+      "description": "Trainer wirft 8 Bälle hintereinander an die VH-Seite. Spieler spielt jeden Ball cross in das gegenüberliegende Aufschlagfeld. Hütchen markiert die Zielzone.",
+      "category": "Technik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Ballkorb",
+        "Hütchen"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Vorhand",
+        "Cross"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=UwIPqGkQO80"
+    },
+    {
+      "id": "orange-ruckhand-longline-mit-marker",
+      "title": "Rückhand longline mit Marker",
+      "description": "Wie oben, aber RH longline auf die T-Linie. Coaching-Bild: 'die Saiten zum Ziel zeigen'. 8 Bälle pro Durchgang, 2 Durchgänge.",
+      "category": "Technik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Rückhand",
+        "Longline"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=qX07RV8JFaY"
+    },
+    {
+      "id": "orange-schaufel-aufschlag",
+      "title": "Schaufel-Aufschlag",
+      "description": "Aufschlag von der T-Linie, 'Schaufel' aus der Tiefe — kein Bogen über dem Kopf, nur die Bewegung von unten. Wenn 3/5 ins Feld gehen, einen Schritt zurücktreten.",
+      "category": "Technik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Aufschlag",
+        "Methodik"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=IS8Wl3xsaW8"
+    },
+    {
+      "id": "orange-volley-aus-der-hand",
+      "title": "Volley aus der Hand",
+      "description": "Spieler steht am Netz mit gefasstem Schläger. Trainer wirft den Ball aus der Hand zum Schläger. Spieler 'fängt' den Ball mit den Saiten und stoßt sanft zurück. 6 VH, 6 RH.",
+      "category": "Technik",
+      "level": "Orange",
+      "durationMin": 6,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Volley",
+        "Treffpunkt"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=_5ZRb-DyTzI"
+    },
+    {
+      "id": "orange-treffpunkt-drill-mit-banane",
+      "title": "Treffpunkt-Drill mit Banane",
+      "description": "Coaching-Bild: 'Banane zum Mund führen'. Trainer wirft kurze Vorhand. Spieler trifft ab Hüfthöhe, Schläger endet auf Schulter wie eine Banane. 10 Bälle.",
+      "category": "Technik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Vorhand",
+        "Schwung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=HmWN_CzkLpU"
+    },
+    {
+      "id": "orange-splitstep-auf-klatschen",
+      "title": "Splitstep auf Klatschen",
+      "description": "Spieler steht an der Grundlinie. Trainer klatscht in die Hände, Spieler macht einen Splitstep und einen kleinen Vor-Schritt. 10x ohne Ball, dann mit Ballwurf zur VH.",
+      "category": "Technik",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "2–4",
+      "focus": [
+        "Splitstep",
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=J1UhPl1UrYs"
+    },
+    {
+      "id": "orange-wand-der-5-balle",
+      "title": "Wand der 5 Bälle",
+      "description": "Spieler spielt aus der T-Linie 5 Bälle hintereinander gegen die Wand oder zurück zum Trainer ohne Fehler. Schafft das ganze Team zusammen 25, gibt es eine Belohnung.",
+      "category": "Technik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Wand oder Trainer"
+      ],
+      "playerCount": "1–4",
+      "focus": [
+        "Konstanz",
+        "Ballkontrolle"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ScaOTd2t56o"
+    },
+    {
+      "id": "orange-ampel-spiel-rot-grun",
+      "title": "Ampel-Spiel rot/grün",
+      "description": "Trainer ruft 'Grün' = angreifen mit Vorhand, 'Rot' = neutral hoch über Netz spielen. Aus dem Korb gefütterter Ball bestimmt die Entscheidung. 10 Bälle pro Spieler.",
+      "category": "Taktik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle",
+        "Pylonen für Zonen"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Spielentscheidung",
+        "Vorhand"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=f31uzEPpQrw"
+    },
+    {
+      "id": "orange-hoch-tief-cross",
+      "title": "Hoch-Tief Cross",
+      "description": "Cross-Rallye Vorhand. Auf 'Hoch' muss der Ball über ein Toverkoord (Schnur über dem Netz), auf 'Tief' darunter. Wechsel nach 5 Bällen.",
+      "category": "Taktik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Toverkoord oder Schnur"
+      ],
+      "playerCount": "Paare cross",
+      "focus": [
+        "Höhe",
+        "Variation"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=NtqwyVWBNtE"
+    },
+    {
+      "id": "orange-konigszone-mitte",
+      "title": "Königszone Mitte",
+      "description": "Im Midcourt liegt ein 2 m breiter Hütchenbereich genau in der Mitte. Wer den Ball dort hin spielt, bekommt einen Pluspunkt. Erste zu 7 Pluspunkten.",
+      "category": "Taktik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Hütchen"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Tiefe",
+        "Genauigkeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=qX07RV8JFaY"
+    },
+    {
+      "id": "orange-angriff-auf-den-kurzen-ball",
+      "title": "Angriff auf den kurzen Ball",
+      "description": "Trainer spielt einen kurzen Ball auf die T-Linie. Spieler läuft vor, spielt eine Vorhand und bleibt am Netz. Trainer wirft einen Lob, Spieler schmettert/Volley. 6 Durchgänge.",
+      "category": "Taktik",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Angriff",
+        "Netzspiel"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=C2aE6tv2KP8"
+    },
+    {
+      "id": "orange-wer-was-wo-quiz",
+      "title": "Wer-was-wo Quiz",
+      "description": "Vor dem Punkt fragt der Trainer: 'Wo schlägst du hin?' Spieler antwortet (z.B. 'cross tief'). Punkt wird gespielt. Bonus, wenn der Plan klappt. Lehrt bewusste Entscheidung.",
+      "category": "Taktik",
+      "level": "Orange",
+      "durationMin": 6,
+      "equipment": [],
+      "playerCount": "1–4",
+      "focus": [
+        "Spielintention",
+        "Wahrnehmung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=7xNJdW18KSA"
+    },
+    {
+      "id": "orange-11-punkte-halbfeld",
+      "title": "11-Punkte Halbfeld",
+      "description": "Cross im Halbfeld mit Aufschlagfeldlinie als Ende. Jeder Aufschlag von Hand, dann freier Ballwechsel. Wer zuerst 11 Punkte hat, gewinnt.",
+      "category": "Punktspiel",
+      "level": "Orange",
+      "durationMin": 12,
+      "equipment": [
+        "Hütchen für Cross-Linie"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Punktspiel",
+        "Cross"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=2MswyYpO_qc"
+    },
+    {
+      "id": "orange-cooperation-challenge",
+      "title": "Cooperation Challenge",
+      "description": "Wie viele Bälle hin und her ohne Fehler? Beide Spieler im selben Team. Bestmarke der Stunde wird angeschrieben — nächste Woche schlagen.",
+      "category": "Punktspiel",
+      "level": "Orange",
+      "durationMin": 8,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Konstanz",
+        "Teamspiel"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ScaOTd2t56o"
+    },
+    {
+      "id": "orange-king-of-the-mini-court",
+      "title": "King of the Mini-Court",
+      "description": "Halber Platz, Aufschlag von Hand. Sieger bleibt auf der Königsseite. Verlierer rotiert raus, Nächster kommt rein. 1-Punkt-Spiele.",
+      "category": "Punktspiel",
+      "level": "Orange",
+      "durationMin": 12,
+      "equipment": [],
+      "playerCount": "3+",
+      "focus": [
+        "Punktspiel",
+        "Rotation"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=gMnZzn-EtV8"
+    },
+    {
+      "id": "orange-drei-leben",
+      "title": "Drei Leben",
+      "description": "Mini-Match, jeder hat 3 Leben (wie ein Computer-Spiel). Wer 3 Punkte verliert, ist raus. Gewinner spielt gegen Wartenden weiter.",
+      "category": "Punktspiel",
+      "level": "Orange",
+      "durationMin": 12,
+      "equipment": [],
+      "playerCount": "3–6",
+      "focus": [
+        "Punktspiel",
+        "Druck"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=osArBTj4Mf8"
+    },
+    {
+      "id": "orange-targetwars",
+      "title": "Targetwars",
+      "description": "Drei Hütchen pro Seite (Mitte, Außen-VH, Außen-RH). Wer ein Hütchen umspielt, bekommt 1 Punkt; wer es trifft, 3 Punkte. Erste zu 15.",
+      "category": "Punktspiel",
+      "level": "Orange",
+      "durationMin": 12,
+      "equipment": [
+        "6 Hütchen"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Genauigkeit",
+        "Punktspiel"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=qX07RV8JFaY"
+    },
+    {
+      "id": "orange-ruhige-cross-rallye",
+      "title": "Ruhige Cross-Rallye",
+      "description": "Locker im Midcourt cross spielen, einfach aufeinander zu, ohne Fehlerzählen. Tief atmen, Schultern hängen lassen. 3 Minuten.",
+      "category": "Cool-down",
+      "level": "Orange",
+      "durationMin": 4,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Entspannung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ExD8U3TAZ-k"
+    },
+    {
+      "id": "orange-spider-stretch",
+      "title": "Spider-Stretch",
+      "description": "Stretching-Routine: Wadenzieh, Quadrizeps stehend, Schulter hinter Kopf, Handgelenk nach vorn/hinten. Jede Position 15 Sek. pro Seite.",
+      "category": "Cool-down",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Stretching"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=8gI5IeBdVBQ"
+    },
+    {
+      "id": "orange-lieblings-schlag-show",
+      "title": "Lieblings-Schlag-Show",
+      "description": "Jeder zeigt der Gruppe seinen Lieblings-Schlag der Stunde, kurze Erklärung warum. Stärkt Selbstvertrauen und beendet positiv.",
+      "category": "Cool-down",
+      "level": "Orange",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Reflexion"
+      ],
+      "videoUrl": null
+    },
+    {
+      "id": "grun-joggen-mit-ballwechsel",
+      "title": "Joggen mit Ballwechsel",
+      "description": "Lockeres Joggen rund um den Platz, jedes Paar wirft sich einen Ball zu. Variationen: über Kopf, von unten, hinter dem Rücken. 3 Minuten.",
+      "category": "Warm-up",
+      "level": "Grün",
+      "durationMin": 4,
+      "equipment": [
+        "Ball pro Paar"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Aktivierung",
+        "Ballgefühl"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=NJMB2kGaJzM"
+    },
+    {
+      "id": "grun-drei-balle-jonglieren",
+      "title": "Drei-Bälle-Jonglieren",
+      "description": "Auf der Grundlinie 2 Bälle in einer Hand jonglieren. Wer es schafft, fügt einen 3. dazu. Schult Auge und Hand. 2 Minuten.",
+      "category": "Warm-up",
+      "level": "Grün",
+      "durationMin": 3,
+      "equipment": [
+        "3 Bälle pro Spieler"
+      ],
+      "playerCount": "1+",
+      "focus": [
+        "Ballgefühl",
+        "Konzentration"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=r7yDdza8BAA"
+    },
+    {
+      "id": "grun-mini-tennis-vollfeld-vorne",
+      "title": "Mini-Tennis Vollfeld vorne",
+      "description": "Beide Spieler stehen an den T-Linien, leichte Cross-Rallye. Schläger kurz fassen. Ziel: weicher Treffpunkt vor dem Körper. 3 Min.",
+      "category": "Warm-up",
+      "level": "Grün",
+      "durationMin": 4,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Treffpunkt",
+        "Ballkontrolle"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=uuKtDEXCVnA"
+    },
+    {
+      "id": "grun-schatten-stroke",
+      "title": "Schatten-Stroke",
+      "description": "Ohne Ball: Trainer ruft 'Vorhand', alle simulieren komplette VH inkl. Splitstep, Schritt, Schwung, Ausschwung. Auch 'Rückhand', 'Volley', 'Aufschlag'. 12 Wiederholungen.",
+      "category": "Warm-up",
+      "level": "Grün",
+      "durationMin": 4,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Bewegungsbild"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=3y1Nm-iRkyE"
+    },
+    {
+      "id": "grun-reaktion-auf-trainerball",
+      "title": "Reaktion auf Trainerball",
+      "description": "Trainer steht in der Mitte mit Ballkorb und wirft schnell mal links, mal rechts. Spieler schlagen kontrolliert in eine markierte Zone hinter dem Aufschlagfeld. 8 Bälle pro Spieler.",
+      "category": "Warm-up",
+      "level": "Grün",
+      "durationMin": 5,
+      "equipment": [
+        "Ballkorb",
+        "Hütchen"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Reaktion",
+        "Treffpunkt"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=6qwVWIYRW3c"
+    },
+    {
+      "id": "grun-spider-drill",
+      "title": "Spider-Drill",
+      "description": "Ein Hütchen in der Mitte der Grundlinie, vier Hütchen an den Ecken (Doppellinien + Aufschlaglinien). Spieler sprintet aus der Mitte zu jedem Hütchen, berührt, kommt zurück. Auf Zeit.",
+      "category": "Athletik",
+      "level": "Grün",
+      "durationMin": 6,
+      "equipment": [
+        "5 Hütchen"
+      ],
+      "playerCount": "1 nacheinander",
+      "focus": [
+        "Schnelligkeit",
+        "Wendigkeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ZJMgXdIvThg"
+    },
+    {
+      "id": "grun-splitstep-sprintreihen",
+      "title": "Splitstep-Sprintreihen",
+      "description": "An der Grundlinie: Splitstep auf Klatschen, dann 2 Schritte cross-vorwärts. Trainer variiert Tempo. 6 Wiederholungen, 30 Sek. Pause.",
+      "category": "Athletik",
+      "level": "Grün",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Splitstep",
+        "Sprint"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=XR83yXLla8w"
+    },
+    {
+      "id": "grun-medizinball-wurf-seitlich",
+      "title": "Medizinball-Wurf seitlich",
+      "description": "Mit kleinem Medizinball (1 kg): Wurf seitlich aus VH-Position gegen die Wand oder zum Partner. Imitiert Drehung. 8 pro Seite.",
+      "category": "Athletik",
+      "level": "Grün",
+      "durationMin": 6,
+      "equipment": [
+        "Medizinball 1 kg"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Rumpfdrehung",
+        "Kraft"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=2S-mRuOha3k"
+    },
+    {
+      "id": "grun-reaktions-tennis-tag",
+      "title": "Reaktions-Tennis-Tag",
+      "description": "4–6 Spieler im Aufschlagfeld. Ein Fänger. Wer angetippt wird, friert ein, kann durch Saiten-Berührung eines anderen befreit werden. 3 Min, dann Wechsel.",
+      "category": "Athletik",
+      "level": "Grün",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "4+",
+      "focus": [
+        "Beinarbeit",
+        "Spaß"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=osArBTj4Mf8"
+    },
+    {
+      "id": "grun-z-drill-mit-ball",
+      "title": "Z-Drill mit Ball",
+      "description": "Spieler läuft Z-förmig: Grundlinie Mitte → Aufschlaglinie rechts → Aufschlaglinie links → Netz. An jedem Hütchen wirft der Trainer einen Ball, der gefangen werden muss.",
+      "category": "Athletik",
+      "level": "Grün",
+      "durationMin": 5,
+      "equipment": [
+        "3 Hütchen",
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Beinarbeit",
+        "Wahrnehmung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=hbjkFRQw5Lw"
+    },
+    {
+      "id": "grun-open-stance-vorhand",
+      "title": "Open Stance Vorhand",
+      "description": "Trainer feedet aus dem Korb auf die VH-Seite. Spieler in Open Stance, Rumpfdrehung, Schwung von tief nach hoch (Topspin). 10 Bälle pro Durchgang, 2 Durchgänge.",
+      "category": "Technik",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Vorhand",
+        "Topspin"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=OwOyppQgvco"
+    },
+    {
+      "id": "grun-ruckhand-beidhandig-zur-langsachse",
+      "title": "Rückhand beidhändig zur Längsachse",
+      "description": "Coaching-Bild: 'Eimer Wasser ausschütten'. Beide Hände führen den Schläger über die Schulter. Trainer feedet 10 RH-Bälle pro Spieler.",
+      "category": "Technik",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Rückhand",
+        "Schwung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=DVRyIjzJ3kI"
+    },
+    {
+      "id": "grun-aufschlag-mit-dem-bogen",
+      "title": "Aufschlag mit dem Bogen",
+      "description": "Pijl-en-boog-Bild: Wurf-Hand zum Himmel als 'Pfeil', Schlag-Arm als 'Bogen' nach hinten. 10 Aufschläge pro Seite, Fokus auf konstantem Wurf.",
+      "category": "Technik",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Aufschlag",
+        "Wurf"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ngCFXzmP398"
+    },
+    {
+      "id": "grun-volley-aus-dem-stand",
+      "title": "Volley aus dem Stand",
+      "description": "Spieler am Netz, Schläger waagrecht, kein Ausholen. Trainer feedet aus 5 m. 'Ball fangen vor dem Körper.' 6 VH, 6 RH.",
+      "category": "Technik",
+      "level": "Grün",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Volley",
+        "Stand"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=xB6FWtFd1ys"
+    },
+    {
+      "id": "grun-slice-ruckhand-cross",
+      "title": "Slice-Rückhand cross",
+      "description": "Schläger leicht offen, von oben nach unten-vorn. Coaching-Bild: 'Frisbee werfen'. 10 Slice-RH cross in das gegenüberliegende Halbfeld.",
+      "category": "Technik",
+      "level": "Grün",
+      "durationMin": 8,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Slice",
+        "Rückhand"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=Cdh6xiSFcDk"
+    },
+    {
+      "id": "grun-return-mit-zwei-pylonen",
+      "title": "Return mit zwei Pylonen",
+      "description": "Trainer schlägt locker auf. Spieler returniert zwischen zwei Pylonen, die je 1 m innerhalb der Doppellinien stehen — Mitte und tief. 8 Returns pro Seite.",
+      "category": "Technik",
+      "level": "Grün",
+      "durationMin": 8,
+      "equipment": [
+        "Pylonen",
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Return",
+        "Tiefe"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=unlTH7fC7_Y"
+    },
+    {
+      "id": "grun-kontaktpunkt-wand",
+      "title": "Kontaktpunkt-Wand",
+      "description": "An die Wand mit kurzem Schwung spielen. Bedingung: Ball trifft den Kontaktpunkt vor dem Körper, Schläger geht zur Schulter. 30 Bälle, gerne mit Klatsch-Trigger des Partners.",
+      "category": "Technik",
+      "level": "Grün",
+      "durationMin": 8,
+      "equipment": [
+        "Wand",
+        "Bälle"
+      ],
+      "playerCount": "1–2 pro Wand",
+      "focus": [
+        "Treffpunkt",
+        "Schlagvorbereitung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=qX07RV8JFaY"
+    },
+    {
+      "id": "grun-cross-longline-wechsel",
+      "title": "Cross + Longline-Wechsel",
+      "description": "A spielt nur cross, B nur longline. Wer den Ball verliert, wechselt die Rolle. Erkenntnis: Cross-Spieler steht zentraler.",
+      "category": "Taktik",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Stellungsspiel",
+        "Richtung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=2MswyYpO_qc"
+    },
+    {
+      "id": "grun-aufschlag-1",
+      "title": "Aufschlag + 1",
+      "description": "Aufschlag, dann muss der nächste Ball ein Angriff in den freien Raum sein. Trainer zählt mit: 5 erfolgreiche Aufschlag+1-Sequenzen sind ein Spiel.",
+      "category": "Taktik",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Aufschlag",
+        "Angriff"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=Ajul0xbuKVA"
+    },
+    {
+      "id": "grun-return-auf-tiefe",
+      "title": "Return auf Tiefe",
+      "description": "Trainer schlägt 2. Aufschlag. Spieler muss tief auf 'Mikpunkten' (Hütchen 1 m vor Grundlinie) returnieren. Punkt zählt nur, wenn der Ball tief war.",
+      "category": "Taktik",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [
+        "Hütchen",
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Return",
+        "Tiefe"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=NtqwyVWBNtE"
+    },
+    {
+      "id": "grun-drei-zonen-entscheidung",
+      "title": "Drei-Zonen-Entscheidung",
+      "description": "Feld in 3 Zonen: hinten (verteidigen), mittel (aufbauen), kurz (angreifen). Spieler benennt vor jedem Schlag laut die Zone und wählt entsprechend.",
+      "category": "Taktik",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Spielintention",
+        "Entscheidung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=YbaRAIAhPc8"
+    },
+    {
+      "id": "grun-approach-erste-volley",
+      "title": "Approach + erste Volley",
+      "description": "Aufbau aus der Halbfeldzone: Approach longline, dann erste Volley diagonal in die offene Hälfte. 6 Wiederholungen, danach Rollen tauschen.",
+      "category": "Taktik",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Netzangriff",
+        "Volley"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=F6PWNUIddDU"
+    },
+    {
+      "id": "grun-21-punkte-vollfeld",
+      "title": "21-Punkte Vollfeld",
+      "description": "Ganzer Platz, Aufschlag von Hand. Erste zu 21 Punkten. Aufschlag wechselt jede 5. Fehler-Punkte zählen normal.",
+      "category": "Punktspiel",
+      "level": "Grün",
+      "durationMin": 15,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Punktspiel",
+        "Ausdauer"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=g0ww7H2CRA8"
+    },
+    {
+      "id": "grun-doppel-mit-zwei-aufschlagen",
+      "title": "Doppel mit zwei Aufschlägen",
+      "description": "2 vs 2 mit normaler Doppelregel. Aufschläger startet von Hand, danach ganz normal. Coach achtet auf Stellungsspiel und Kommunikation.",
+      "category": "Punktspiel",
+      "level": "Grün",
+      "durationMin": 15,
+      "equipment": [],
+      "playerCount": "4",
+      "focus": [
+        "Doppel",
+        "Stellungsspiel"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=0vHeAR24-2A"
+    },
+    {
+      "id": "grun-good-guy-bad-guy",
+      "title": "Good guy / Bad guy",
+      "description": "Einer ist 'Good guy' (verteidigen), einer 'Bad guy' (angreifen, in 4 Schlägen punkten). Wenn Bad guy in 4 Schlägen nicht punktet, bekommt Good guy einen Punkt. Wechsel nach 5 Punkten.",
+      "category": "Punktspiel",
+      "level": "Grün",
+      "durationMin": 12,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Angriff",
+        "Verteidigung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=NWYy94KJvkA"
+    },
+    {
+      "id": "grun-first-to-4-mit-aufschlag-bonus",
+      "title": "First to 4 mit Aufschlag-Bonus",
+      "description": "Mini-Tiebreak bis 4. Wer mit 1. Aufschlag direkt punktet (Ass oder Aufschlagwinner), bekommt 2 Punkte. Stärkt das 1. Aufschlag-Engagement.",
+      "category": "Punktspiel",
+      "level": "Grün",
+      "durationMin": 12,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Aufschlag",
+        "Druck"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=g0ww7H2CRA8"
+    },
+    {
+      "id": "grun-zenuwspel-nervenspiel",
+      "title": "Zenuwspel (Nervenspiel)",
+      "description": "Spieler stehen reihum am Aufschlag. Wer 2 Doppelfehler in Folge macht, scheidet aus. Letzter gewinnt. Spielerisch Druck simulieren.",
+      "category": "Punktspiel",
+      "level": "Grün",
+      "durationMin": 10,
+      "equipment": [],
+      "playerCount": "4+",
+      "focus": [
+        "Aufschlag",
+        "Mental"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=NWYy94KJvkA"
+    },
+    {
+      "id": "grun-ausspielen-ohne-werten",
+      "title": "Ausspielen ohne Werten",
+      "description": "Lockerer Ballwechsel, kein Punktspiel, Bälle einfach im Spiel halten. Wer einen Fehler macht, beginnt einfach neu.",
+      "category": "Cool-down",
+      "level": "Grün",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Entspannung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ExD8U3TAZ-k"
+    },
+    {
+      "id": "grun-beweglichkeit-schulter-hufte",
+      "title": "Beweglichkeit Schulter & Hüfte",
+      "description": "Stretches: Schulter über Kopf hinter den Rücken, Hüfte 'Yogahund', Hamstring sitzend. Jede Position 20 Sek.",
+      "category": "Cool-down",
+      "level": "Grün",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Stretching"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=dE6J82QSIIk"
+    },
+    {
+      "id": "grun-highlight-lernpunkt",
+      "title": "Highlight & Lernpunkt",
+      "description": "Jeder nennt EINEN Highlight-Schlag der Stunde und EINE Sache, an der er arbeiten will. Trainer notiert für nächste Stunde.",
+      "category": "Cool-down",
+      "level": "Grün",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Reflexion"
+      ],
+      "videoUrl": null
+    },
+    {
+      "id": "hart-lockeres-einspielen-vollfeld",
+      "title": "Lockeres Einspielen Vollfeld",
+      "description": "Lockeres Cross VH und RH von der Grundlinie, ca. 3/4-Tempo. Ziel: 10 Bälle in Folge ohne Fehler. Erst nach 5 sauberen Bällen Tempo erhöhen.",
+      "category": "Warm-up",
+      "level": "Hart",
+      "durationMin": 6,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Aktivierung",
+        "Konstanz"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ScaOTd2t56o"
+    },
+    {
+      "id": "hart-zweier-volley-am-netz",
+      "title": "Zweier-Volley am Netz",
+      "description": "Beide Spieler am Netz, weicher Volley-Volley-Wechsel. Ohne Boden, Schläger kurz, Drehung der Schultern. 30 Bälle hin und her als Gruppenziel.",
+      "category": "Warm-up",
+      "level": "Hart",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Volley",
+        "Reaktion"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ebSB47mHNuQ"
+    },
+    {
+      "id": "hart-service-routine-ohne-druck",
+      "title": "Service-Routine ohne Druck",
+      "description": "Pro Spieler 10 Aufschläge auf jede Seite, nur auf Wurf und Schwung achten — kein Treffer-Zählen. Ist nur Mobilisierung der Schulter.",
+      "category": "Warm-up",
+      "level": "Hart",
+      "durationMin": 6,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Aufschlag",
+        "Mobilisierung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=5Xq0DW1ehZc"
+    },
+    {
+      "id": "hart-cross-8-er",
+      "title": "Cross 8-er",
+      "description": "Vier Spieler, zwei auf jeder Seite. Beide cross-Rallyes laufen parallel (VH-Cross + RH-Cross). Ball darf nicht in den anderen Halb übergeben werden. 4 Min.",
+      "category": "Warm-up",
+      "level": "Hart",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "4 pro Platz",
+      "focus": [
+        "Konstanz",
+        "Konzentration"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=UwIPqGkQO80"
+    },
+    {
+      "id": "hart-aktivierungslauf-4-ecken",
+      "title": "Aktivierungslauf 4 Ecken",
+      "description": "Sprint zur rechten Aufschlaglinie, Side-Step zur linken Aufschlaglinie, Backpedal zur Grundlinie, Sprint zum Netz, jog zurück. 3 Runden in moderatem Tempo.",
+      "category": "Warm-up",
+      "level": "Hart",
+      "durationMin": 4,
+      "equipment": [],
+      "playerCount": "1 nach dem anderen",
+      "focus": [
+        "Aktivierung",
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=mxSHYYljNqw"
+    },
+    {
+      "id": "hart-ladder-sprint-combo",
+      "title": "Ladder + Sprint Combo",
+      "description": "Koordinationsleiter mit 'In-In-Out-Out'. Direkt anschließend Sprint zum Netz und Backpedal zurück. 4 Runden, dazwischen 30 Sek. Pause.",
+      "category": "Athletik",
+      "level": "Hart",
+      "durationMin": 6,
+      "equipment": [
+        "Leiter"
+      ],
+      "playerCount": "Reihenweise",
+      "focus": [
+        "Beinarbeit",
+        "Sprint"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=XMlBOpbrrQo"
+    },
+    {
+      "id": "hart-medizinball-slam",
+      "title": "Medizinball-Slam",
+      "description": "Mit Medizinball (2–3 kg) über Kopf in den Boden schlagen. Imitiert die Aufschlag-Bewegung. 3x10 Wiederholungen, dazwischen Pause.",
+      "category": "Athletik",
+      "level": "Hart",
+      "durationMin": 6,
+      "equipment": [
+        "Medizinball 2–3 kg"
+      ],
+      "playerCount": "1+",
+      "focus": [
+        "Aufschlag",
+        "Kraft"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=Du4VNtVqqh4"
+    },
+    {
+      "id": "hart-reaktion-auf-zwei-trainer",
+      "title": "Reaktion auf zwei Trainer",
+      "description": "Zwei Trainer stehen seitlich, wechselweise feeden sie schnell links/rechts. Spieler darf erst reagieren, wenn der Ball gefeedet wird. 12 Bälle.",
+      "category": "Athletik",
+      "level": "Hart",
+      "durationMin": 5,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Pärchen",
+      "focus": [
+        "Reaktion",
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=iT5XBcKjd8g"
+    },
+    {
+      "id": "hart-jump-rope-tabata",
+      "title": "Jump-Rope Tabata",
+      "description": "Springseil: 20 Sek schnell, 10 Sek Pause. 8 Runden. Stärkt Wadenarbeit für Splitsteps.",
+      "category": "Athletik",
+      "level": "Hart",
+      "durationMin": 5,
+      "equipment": [
+        "Springseile"
+      ],
+      "playerCount": "Einzeln",
+      "focus": [
+        "Sprungkraft",
+        "Ausdauer"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=eGWhONP7558"
+    },
+    {
+      "id": "hart-suicides-auf-dem-platz",
+      "title": "Suicides auf dem Platz",
+      "description": "Sprint von Grundlinie zu Aufschlaglinie + zurück, Grundlinie zu Netz + zurück, Grundlinie zu gegenüberliegender Grundlinie + zurück. 3 Sätze.",
+      "category": "Athletik",
+      "level": "Hart",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Einzeln",
+      "focus": [
+        "Sprint",
+        "Ausdauer"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=flpvW8O97Q4"
+    },
+    {
+      "id": "hart-vorhand-inside-out",
+      "title": "Vorhand Inside-Out",
+      "description": "Trainer feedet auf die Mitte. Spieler läuft aus der RH-Position um den Ball, spielt VH inside-out cross in das gegnerische Eck. 8 Bälle pro Durchgang.",
+      "category": "Technik",
+      "level": "Hart",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Vorhand",
+        "Inside-Out"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=x3ww-3NKmEo"
+    },
+    {
+      "id": "hart-ruckhand-longline-mit-druck",
+      "title": "Rückhand longline mit Druck",
+      "description": "Trainer schlägt aus dem Korb 8 Bälle in moderatem Tempo cross VH. Spieler antwortet jeden Ball longline RH. Ziel: 6 von 8 ins gegnerische Eck.",
+      "category": "Technik",
+      "level": "Hart",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb",
+        "Hütchen"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Rückhand",
+        "Longline"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=_JD0cb7xU2I"
+    },
+    {
+      "id": "hart-erster-zweiter-aufschlag",
+      "title": "Erster + zweiter Aufschlag",
+      "description": "Pro Seite 10 Aufschlagwürfe: zuerst 1. Aufschlag (Tempo), dann 2. Aufschlag (Spin in das Aufschlagfeld). Notieren: Trefferquote 1./2.",
+      "category": "Technik",
+      "level": "Hart",
+      "durationMin": 10,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Aufschlag",
+        "Variation"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=9qSkpNWgDmA"
+    },
+    {
+      "id": "hart-volley-unter-druck",
+      "title": "Volley unter Druck",
+      "description": "Spieler am Netz, Trainer feedet schnell aus 6 m. 4 Bälle: tief, hoch, rechts, links. Spieler stop-volleyt jeden Ball mit kurzem Schritt vorwärts.",
+      "category": "Technik",
+      "level": "Hart",
+      "durationMin": 8,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Volley",
+        "Reaktion"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ix6N6XrDO_M"
+    },
+    {
+      "id": "hart-slice-approach-volley",
+      "title": "Slice-Approach + Volley",
+      "description": "Trainer feedet einen kurzen Ball. Spieler spielt Slice longline, bleibt am Netz. Trainer feedet sofort einen Lob — Spieler smasht oder läuft den Lob aus.",
+      "category": "Technik",
+      "level": "Hart",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Slice",
+        "Netzangriff"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=NGOjzlpjUh4"
+    },
+    {
+      "id": "hart-topspin-lob-im-spiel",
+      "title": "Topspin-Lob im Spiel",
+      "description": "Trainer steht am Netz, lobt Spieler aus der Grundlinie. Spieler antwortet mit Topspin-Lob über den Trainer hinweg. 6 Wiederholungen, dann Rollen tauschen.",
+      "category": "Technik",
+      "level": "Hart",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Lob",
+        "Topspin"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=SATCdwQkInE"
+    },
+    {
+      "id": "hart-return-mit-vorwartsdruck",
+      "title": "Return mit Vorwärtsdruck",
+      "description": "Spieler returniert mit kleinem Schritt nach vorn (anstatt nach hinten). Trainer schlägt 2. Aufschlag. Ziel: tiefer Return + Übernahme. 8 Returns pro Seite.",
+      "category": "Technik",
+      "level": "Hart",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Return",
+        "Initiative"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=PWSOJuufdpE"
+    },
+    {
+      "id": "hart-aufschlag-plus-1-mit-plan",
+      "title": "Aufschlag-Plus-1 mit Plan",
+      "description": "Aufschläger sagt vor dem Aufschlag laut: 'außen Aufschlag, dann VH inside-out'. Wenn der Plan klappt, 2 Punkte; wenn der Punkt anders kommt, normal 1.",
+      "category": "Taktik",
+      "level": "Hart",
+      "durationMin": 12,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Aufschlag",
+        "Spielmuster"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=0R0EhzOVFTc"
+    },
+    {
+      "id": "hart-cross-cross-longline",
+      "title": "Cross-Cross-Longline",
+      "description": "Drei-Schlag-Muster: 2 cross, dritter longline-Winner. Trainer feedet, Spieler spielt das Muster aus. 6 Wiederholungen, dann live.",
+      "category": "Taktik",
+      "level": "Hart",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Spielmuster",
+        "Aufbau"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=YbaRAIAhPc8"
+    },
+    {
+      "id": "hart-verteidigen-aus-dem-eck",
+      "title": "Verteidigen aus dem Eck",
+      "description": "Trainer feedet immer wieder in das gleiche Eck der RH. Spieler darf nur hoch/cross/tief antworten und versucht in der Verlängerung wieder die Mitte zu erreichen.",
+      "category": "Taktik",
+      "level": "Hart",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Verteidigung",
+        "Recovery"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=lwfzjpcTOs0"
+    },
+    {
+      "id": "hart-spielen-gegen-den-netzspieler",
+      "title": "Spielen gegen den Netzspieler",
+      "description": "A am Netz, B an der Grundlinie. B muss 3 Schläge spielen ohne dass A die Volley schlägt: Pass cross, Pass longline, Lob. Wechsel nach jedem Punkt.",
+      "category": "Taktik",
+      "level": "Hart",
+      "durationMin": 10,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Pass",
+        "Lob"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=4ybMXpEr5hg"
+    },
+    {
+      "id": "hart-erste-4-schlage",
+      "title": "Erste 4 Schläge",
+      "description": "Punkte werden nach 4 Schlägen automatisch beendet (egal wer führt). Zwingt zu klarem Plan: Aufschlag + 1 oder Return + 1. Erste zu 7 Punkten.",
+      "category": "Taktik",
+      "level": "Hart",
+      "durationMin": 10,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Spielmuster",
+        "Aktivität"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=0R0EhzOVFTc"
+    },
+    {
+      "id": "hart-no-ad-bis-7",
+      "title": "No-Ad bis 7",
+      "description": "Aufschlag-Spiele bis 7 mit No-Ad-Regel (bei Einstand entscheidet 1 Punkt). Match besteht aus 3 Spielen, schnelle Rotation.",
+      "category": "Punktspiel",
+      "level": "Hart",
+      "durationMin": 15,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Match",
+        "Druck"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=g0ww7H2CRA8"
+    },
+    {
+      "id": "hart-tiebreak-marathon",
+      "title": "Tiebreak-Marathon",
+      "description": "Nur Tiebreaks bis 7. Wer zuerst 3 Tiebreaks gewinnt, ist Sieger. Stärkt mentale Konstanz unter Druck.",
+      "category": "Punktspiel",
+      "level": "Hart",
+      "durationMin": 15,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Tiebreak",
+        "Mental"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=wAGBwBxlEJI"
+    },
+    {
+      "id": "hart-doppel-satze-auf-4",
+      "title": "Doppel-Sätze auf 4",
+      "description": "2 vs 2 Sätze bis 4 Spiele, alle Spiele No-Ad. Coach gibt Hinweise zwischen den Spielen zur Stellung am Netz.",
+      "category": "Punktspiel",
+      "level": "Hart",
+      "durationMin": 18,
+      "equipment": [],
+      "playerCount": "4",
+      "focus": [
+        "Doppel",
+        "Taktik"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=1Cf249OHYiw"
+    },
+    {
+      "id": "hart-queen-king-of-the-court",
+      "title": "Queen/King of the Court",
+      "description": "Auf der 'King-Seite' bleibt der Sieger. Aufschlag von Hand, Punkt um Punkt. Wartende Spieler rotieren rein. 12 Min.",
+      "category": "Punktspiel",
+      "level": "Hart",
+      "durationMin": 12,
+      "equipment": [],
+      "playerCount": "3+",
+      "focus": [
+        "Punktspiel",
+        "Rotation"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=vVZSwz7UI74"
+    },
+    {
+      "id": "hart-funf-leben-aufschlagdruck",
+      "title": "Fünf Leben Aufschlagdruck",
+      "description": "Aufschläger hat 5 Leben. Bei jedem Doppelfehler oder Aufschlag in der Mitte verliert er ein Leben. Returnierer versucht in 5 Punkten so viele Leben zu klauen wie möglich.",
+      "category": "Punktspiel",
+      "level": "Hart",
+      "durationMin": 12,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Aufschlag",
+        "Mental"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=Ajul0xbuKVA"
+    },
+    {
+      "id": "hart-locker-ausspielen-5-min",
+      "title": "Locker Ausspielen 5 Min",
+      "description": "Cross-Rallye ohne Druck, 50% Tempo, tief atmen. Kein Punktspiel, kein Zählen.",
+      "category": "Cool-down",
+      "level": "Hart",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Entspannung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ExD8U3TAZ-k"
+    },
+    {
+      "id": "hart-tennis-stretching-ganzkorper",
+      "title": "Tennis-Stretching Ganzkörper",
+      "description": "Wadenstretch, Quadrizeps, Hamstring, Hüftbeuger, Schulter über Kopf, Brust öffnen, Unterarm. Je 20 Sek.",
+      "category": "Cool-down",
+      "level": "Hart",
+      "durationMin": 6,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Stretching",
+        "Regeneration"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=dE6J82QSIIk"
+    },
+    {
+      "id": "hart-kurze-trainings-reflexion",
+      "title": "Kurze Trainings-Reflexion",
+      "description": "Drei Fragen pro Spieler: Was hat heute gut funktioniert? Was war schwierig? Was nimmst du in die nächste Stunde mit?",
+      "category": "Cool-down",
+      "level": "Hart",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Reflexion"
+      ],
+      "videoUrl": null
+    },
+    {
+      "id": "erwachsene-mobilisierung-5-min",
+      "title": "Mobilisierung 5 Min",
+      "description": "Kreisende Schultern, Hüftkreisen, Knöchelkreisen, Ausfallschritte mit Drehung, Inchworm-Push-up. Je 30 Sek. Bringt den Körper auf Betriebstemperatur.",
+      "category": "Warm-up",
+      "level": "Erwachsene",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Mobilisierung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=3y1Nm-iRkyE"
+    },
+    {
+      "id": "erwachsene-cross-rallye-3-4-tempo",
+      "title": "Cross-Rallye 3/4 Tempo",
+      "description": "Nach Mobilisierung: VH-Cross 2 Min, RH-Cross 2 Min, dann eine Minute volles Feld neutral. Ziel: 10 Bälle ohne Fehler bevor das Tempo steigt.",
+      "category": "Warm-up",
+      "level": "Erwachsene",
+      "durationMin": 6,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Aktivierung",
+        "Konstanz"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=ScaOTd2t56o"
+    },
+    {
+      "id": "erwachsene-volley-ping-pong",
+      "title": "Volley-Ping-Pong",
+      "description": "Beide Spieler vor der Aufschlaglinie, weiche Volleys. Ohne Boden, Schläger kurz fassen. 30 Bälle als Teamziel.",
+      "category": "Warm-up",
+      "level": "Erwachsene",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Volley",
+        "Reaktion"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=xB6FWtFd1ys"
+    },
+    {
+      "id": "erwachsene-aufschlag-routine-ohne-druck",
+      "title": "Aufschlag-Routine ohne Druck",
+      "description": "10 Aufschläge pro Seite, nur den Wurf und das Timing checken. Keine Statistik. Ziel: gleiche Wurfhöhe an gleicher Stelle.",
+      "category": "Warm-up",
+      "level": "Erwachsene",
+      "durationMin": 6,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Aufschlag",
+        "Routine"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=Bcqi_M9aPmg"
+    },
+    {
+      "id": "erwachsene-foot-tap-ball-toss",
+      "title": "Foot-tap & Ball-toss",
+      "description": "Spieler steht in Splitstep-Stellung, tippt schnell auf der Stelle. Trainer wirft Ball nach 3, 5, 7 Tipps; Spieler fängt mit beiden Händen. Aktiviert Beine + Auge.",
+      "category": "Warm-up",
+      "level": "Erwachsene",
+      "durationMin": 4,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Splitstep",
+        "Reaktion"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=BuTDEriExqc"
+    },
+    {
+      "id": "erwachsene-footwork-parcours",
+      "title": "Footwork-Parcours",
+      "description": "5 Hütchen in Halbkreis um die T-Linie. Spieler läuft mit Side-Steps zu jedem Hütchen, berührt mit dem äußeren Fuß, sprintet wieder zur Mitte. 2 Runden.",
+      "category": "Athletik",
+      "level": "Erwachsene",
+      "durationMin": 6,
+      "equipment": [
+        "5 Hütchen"
+      ],
+      "playerCount": "Einzeln nacheinander",
+      "focus": [
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=eGWhONP7558"
+    },
+    {
+      "id": "erwachsene-sprint-walk-intervalle",
+      "title": "Sprint-Walk-Intervalle",
+      "description": "Sprint von Grundlinie zu Grundlinie, Walk zurück. 8 Wiederholungen. Pulsanstieg ohne Überforderung.",
+      "category": "Athletik",
+      "level": "Erwachsene",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Einzeln",
+      "focus": [
+        "Sprint",
+        "Ausdauer"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=mxSHYYljNqw"
+    },
+    {
+      "id": "erwachsene-reaktion-splitstep",
+      "title": "Reaktion + Splitstep",
+      "description": "Trainer hält Hand hoch und senkt sie spontan. Spieler macht in dem Moment Splitstep + 2 Schritte vorwärts. 10 Wiederholungen.",
+      "category": "Athletik",
+      "level": "Erwachsene",
+      "durationMin": 4,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Splitstep",
+        "Reaktion"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=H2DL1mcCgPA"
+    },
+    {
+      "id": "erwachsene-plank-variationen-3x30",
+      "title": "Plank-Variationen 3x30",
+      "description": "Klassischer Plank, dann seitlicher Plank rechts, seitlicher Plank links. Je 30 Sek. Stärkt Rumpf für Aufschlag und Stoppbewegungen.",
+      "category": "Athletik",
+      "level": "Erwachsene",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Einzeln",
+      "focus": [
+        "Rumpfkraft",
+        "Stabilität"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=mpECF8iirRg"
+    },
+    {
+      "id": "erwachsene-theraband-schultergurtel",
+      "title": "Theraband Schultergürtel",
+      "description": "Mit Theraband: Außenrotation 2x12, Reverse Fly 2x12, Y/T/W-Übungen 2x10. Verletzungsprävention für Aufschlag-Schulter.",
+      "category": "Athletik",
+      "level": "Erwachsene",
+      "durationMin": 6,
+      "equipment": [
+        "Theraband"
+      ],
+      "playerCount": "Einzeln",
+      "focus": [
+        "Schulter",
+        "Prävention"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=2S-mRuOha3k"
+    },
+    {
+      "id": "erwachsene-vorhand-mit-treffpunkt-feedback",
+      "title": "Vorhand mit Treffpunkt-Feedback",
+      "description": "Trainer feedet aus dem Korb. Coaching-Bild: 'Schulter zum Kinn, Treffpunkt vor dem Körper'. 10 Bälle, dann 30 Sek. Pause + kurze Korrektur, dann 10 weitere.",
+      "category": "Technik",
+      "level": "Erwachsene",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Vorhand",
+        "Treffpunkt"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=tdmLH2ve4DY"
+    },
+    {
+      "id": "erwachsene-ruckhand-zur-schulter",
+      "title": "Rückhand zur Schulter",
+      "description": "RH (ein- oder beidhändig) mit Bewegungsbild: 'Eimer Wasser ausschütten' (2H) oder 'Frisbee werfen' (1H). 10 Bälle aus dem Korb, Schwerpunkt Ausschwung über Schulter.",
+      "category": "Technik",
+      "level": "Erwachsene",
+      "durationMin": 10,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Rückhand",
+        "Schwung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=_JD0cb7xU2I"
+    },
+    {
+      "id": "erwachsene-aufschlag-mit-bogen-bild",
+      "title": "Aufschlag mit Bogen-Bild",
+      "description": "Linke Hand 'Pfeil', rechte Hand 'Bogen', Schläger fällt locker hinter den Rücken. 12 Aufschläge mit Fokus auf der Beuge der Beine vor dem Treffer.",
+      "category": "Technik",
+      "level": "Erwachsene",
+      "durationMin": 10,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Aufschlag",
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=5a-ryZnrmh8"
+    },
+    {
+      "id": "erwachsene-volley-aus-der-hand-mit-schritt",
+      "title": "Volley aus der Hand mit Schritt",
+      "description": "Trainer wirft aus der Hand auf 4 m Entfernung. Spieler macht einen Schritt mit dem nicht-Schlagbein nach vorn und 'fängt' den Ball auf den Saiten. 8 VH, 8 RH.",
+      "category": "Technik",
+      "level": "Erwachsene",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Volley",
+        "Schritt"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=xoArCMgPIcE"
+    },
+    {
+      "id": "erwachsene-slice-ruckhand-cross",
+      "title": "Slice-Rückhand cross",
+      "description": "Schläger leicht offen, von oben nach unten-vorn. Schlägerkopf bleibt über dem Handgelenk. 10 Slice-RH cross, Spieler geht danach immer 2 Schritte zurück zur Mitte.",
+      "category": "Technik",
+      "level": "Erwachsene",
+      "durationMin": 8,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Slice",
+        "Recovery"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=_5Og-F3qsXM"
+    },
+    {
+      "id": "erwachsene-return-mit-kurzer-vorbereitung",
+      "title": "Return mit kurzer Vorbereitung",
+      "description": "Trainer schlägt 2. Aufschlag. Spieler returniert mit kurzem Ausholen, Schläger schon vorne. Ziel: tiefer Return mittig. 8 Returns pro Seite.",
+      "category": "Technik",
+      "level": "Erwachsene",
+      "durationMin": 8,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Halbplatz",
+      "focus": [
+        "Return",
+        "Vorbereitung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=unlTH7fC7_Y"
+    },
+    {
+      "id": "erwachsene-smash-aus-dem-lob",
+      "title": "Smash aus dem Lob",
+      "description": "Trainer wirft hohen Lob aus dem Korb. Spieler dreht sich seitwärts, Schritt-Schritt-Schritt unter den Ball, Smash diagonal. 6 Wiederholungen.",
+      "category": "Technik",
+      "level": "Erwachsene",
+      "durationMin": 8,
+      "equipment": [
+        "Ballkorb"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Smash",
+        "Beinarbeit"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=3C8a_ZBVwok"
+    },
+    {
+      "id": "erwachsene-drei-zonen-spiel",
+      "title": "Drei-Zonen-Spiel",
+      "description": "Spieler entscheidet bei jedem Ball: kurz/tief/außen → defensiv hoch, mittel → neutral, kurz → angreifen longline. Ruft die Entscheidung laut.",
+      "category": "Taktik",
+      "level": "Erwachsene",
+      "durationMin": 10,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Spielintention",
+        "Entscheidung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=YbaRAIAhPc8"
+    },
+    {
+      "id": "erwachsene-cross-plus-eins",
+      "title": "Cross-Plus-Eins",
+      "description": "2 Bälle cross spielen, 3. Ball longline als Winner-Versuch. Ohne Bewertung des Ergebnisses, nur Muster üben. 6 Wiederholungen pro Spieler.",
+      "category": "Taktik",
+      "level": "Erwachsene",
+      "durationMin": 10,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Spielmuster"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=YbaRAIAhPc8"
+    },
+    {
+      "id": "erwachsene-approach-volley-aus-dem-halbfeld",
+      "title": "Approach + Volley aus dem Halbfeld",
+      "description": "Trainer feedet einen kurzen Ball. Spieler spielt Slice longline, geht ans Netz, erste Volley diagonal in die offene Hälfte. 6 Wiederholungen.",
+      "category": "Taktik",
+      "level": "Erwachsene",
+      "durationMin": 10,
+      "equipment": [
+        "Bälle"
+      ],
+      "playerCount": "1 pro Trainer",
+      "focus": [
+        "Netzangriff",
+        "Volley"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=0ZyBhUKTDmY"
+    },
+    {
+      "id": "erwachsene-doppel-stellungsspiel-i-formation",
+      "title": "Doppel-Stellungsspiel I-Formation",
+      "description": "2 vs 2: Aufschläger mit Partner in I-Formation (Mitte). Returner muss erkennen, wohin Netzspieler nach Aufschlag geht. 4 Punkte üben, dann analysieren.",
+      "category": "Taktik",
+      "level": "Erwachsene",
+      "durationMin": 12,
+      "equipment": [],
+      "playerCount": "4",
+      "focus": [
+        "Doppel",
+        "Stellung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=sj_NNZsC2YQ"
+    },
+    {
+      "id": "erwachsene-aufschlag-plus-1-mit-ansage",
+      "title": "Aufschlag-Plus-1 mit Ansage",
+      "description": "Aufschläger nennt vor dem Service: 'außen + VH cross'. Wenn der Plan funktioniert, 2 Punkte. 8 Service je Spieler.",
+      "category": "Taktik",
+      "level": "Erwachsene",
+      "durationMin": 10,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Aufschlag",
+        "Spielplan"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=-9EQ30s9IIg"
+    },
+    {
+      "id": "erwachsene-mini-match-auf-4",
+      "title": "Mini-Match auf 4",
+      "description": "Set bis 4 Spiele, No-Ad. Aufschläge ohne 2. Versuch, falls die Gruppe Aufschlag-Anfänger ist. Schnelle Rotation der Aufschlagrichtung.",
+      "category": "Punktspiel",
+      "level": "Erwachsene",
+      "durationMin": 15,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Match",
+        "Spielform"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=NWYy94KJvkA"
+    },
+    {
+      "id": "erwachsene-doppel-king-of-the-court",
+      "title": "Doppel King of the Court",
+      "description": "2 vs 2, Sieger-Paar bleibt auf der 'King-Seite'. Verlierer-Paar wird durch wartendes Paar ersetzt. 1-Punkt-Spiele.",
+      "category": "Punktspiel",
+      "level": "Erwachsene",
+      "durationMin": 15,
+      "equipment": [],
+      "playerCount": "4+",
+      "focus": [
+        "Doppel",
+        "Rotation"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=EC6w8z6YDpQ"
+    },
+    {
+      "id": "erwachsene-aufschlag-druck-spiel",
+      "title": "Aufschlag-Druck-Spiel",
+      "description": "Aufschläger startet mit 0:30. Wer das Spiel gewinnt, bekommt 2 Punkte; wer verliert, bekommt 0. Erste zu 6 Punkten.",
+      "category": "Punktspiel",
+      "level": "Erwachsene",
+      "durationMin": 15,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Aufschlag",
+        "Druck"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=V-VwXPIJwxo"
+    },
+    {
+      "id": "erwachsene-tiebreak-best-of-3",
+      "title": "Tiebreak Best-of-3",
+      "description": "Drei Tiebreaks hintereinander. Wer zuerst 2 gewinnt, ist Sieger. Coach erinnert vor jedem Tiebreak an einen anderen Aufschlag-Plan.",
+      "category": "Punktspiel",
+      "level": "Erwachsene",
+      "durationMin": 18,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Tiebreak",
+        "Mental"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=hblbmulO9zI"
+    },
+    {
+      "id": "erwachsene-punktspiel-mit-aufgabe",
+      "title": "Punktspiel mit Aufgabe",
+      "description": "Vor jedem Punkt zieht der Aufschläger eine Karte: 'erste Volley', 'Slice nach Aufschlag', 'Lob im Aufbau' usw. Punkt mit der Aufgabe spielen.",
+      "category": "Punktspiel",
+      "level": "Erwachsene",
+      "durationMin": 15,
+      "equipment": [
+        "Aufgabenkarten"
+      ],
+      "playerCount": "Paare",
+      "focus": [
+        "Spielmuster",
+        "Variation"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=g0ww7H2CRA8"
+    },
+    {
+      "id": "erwachsene-cool-down-rallye",
+      "title": "Cool-down-Rallye",
+      "description": "Cross-Rallye locker, 50% Tempo, kein Druck. Schultern hängen lassen, tief atmen. 5 Min.",
+      "category": "Cool-down",
+      "level": "Erwachsene",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Paare",
+      "focus": [
+        "Entspannung"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=tR8X_a6bRVY"
+    },
+    {
+      "id": "erwachsene-stretching-fur-tennisspieler",
+      "title": "Stretching für Tennisspieler",
+      "description": "Wade, Quadrizeps, Hamstring, Hüftbeuger, Schultergürtel hinter Rücken, Brust öffnen, Unterarm-Stretches. Jede Position 20–30 Sek.",
+      "category": "Cool-down",
+      "level": "Erwachsene",
+      "durationMin": 7,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Stretching",
+        "Regeneration"
+      ],
+      "videoUrl": "https://www.youtube.com/watch?v=G9j1Jt9DIkQ"
+    },
+    {
+      "id": "erwachsene-stunden-reflexion",
+      "title": "Stunden-Reflexion",
+      "description": "Drei kurze Fragen: Was war gut? Was war schwer? Was nehmen Sie mit? Coach notiert die Antworten für die Planung der nächsten Stunde.",
+      "category": "Cool-down",
+      "level": "Erwachsene",
+      "durationMin": 5,
+      "equipment": [],
+      "playerCount": "Ganze Gruppe",
+      "focus": [
+        "Reflexion"
+      ],
+      "videoUrl": null
+    }
+  ]
+}
