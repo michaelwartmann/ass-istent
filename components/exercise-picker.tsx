@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Search } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -16,18 +18,31 @@ import { categoryLabel } from "@/lib/format";
 import type { Exercise, ExerciseCategory } from "@/lib/types";
 import { setBlockExerciseAction } from "@/lib/actions";
 
+function mapPickError(message: string): string {
+  switch (message) {
+    case "exercise-not-in-space":
+      return "Diese Übung ist nicht in deinem Bestand. Lege sie erst im Katalog ab.";
+    case "not-found":
+      return "Block nicht gefunden — Seite neu laden.";
+    default:
+      return message;
+  }
+}
+
 export function ExercisePicker({
   groupId,
   blockId,
   blockType,
-  trigger,
   exercises,
+  triggerClassName,
+  triggerLabel,
 }: {
   groupId: string;
   blockId: string;
   blockType: ExerciseCategory;
-  trigger: React.ReactElement;
   exercises: Exercise[];
+  triggerClassName?: string;
+  triggerLabel: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -52,19 +67,29 @@ export function ExercisePicker({
 
   function pick(ex: Exercise | null) {
     startTransition(async () => {
-      await setBlockExerciseAction({
-        groupId,
-        blockId,
-        exerciseId: ex?.id ?? null,
-        durationMinutes: ex?.duration_minutes ?? null,
-      });
-      setOpen(false);
+      try {
+        await setBlockExerciseAction({
+          groupId,
+          blockId,
+          exerciseId: ex?.id ?? null,
+          durationMinutes: ex?.duration_minutes ?? null,
+        });
+        setOpen(false);
+      } catch (err) {
+        toast.error(
+          err instanceof Error
+            ? mapPickError(err.message)
+            : "Übung konnte nicht gespeichert werden.",
+        );
+      }
     });
   }
 
+  const spaceEmpty = exercises.length === 0;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={trigger} />
+      <DialogTrigger className={triggerClassName}>{triggerLabel}</DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="px-4 pb-2 pt-4">
           <DialogTitle>Übung wählen</DialogTitle>
@@ -83,9 +108,24 @@ export function ExercisePicker({
         </div>
         <div className="max-h-[55dvh] overflow-y-auto p-2">
           {filtered.length === 0 ? (
-            <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-              Keine passenden Übungen.
-            </p>
+            spaceEmpty ? (
+              <div className="space-y-2 px-3 py-6 text-center text-sm">
+                <p className="text-muted-foreground">
+                  Du hast noch keine Übungen in deinem Bestand.
+                </p>
+                <Link
+                  href="/exercises"
+                  className="inline-block text-[var(--clay)] underline-offset-4 hover:underline"
+                  onClick={() => setOpen(false)}
+                >
+                  Zum Katalog →
+                </Link>
+              </div>
+            ) : (
+              <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+                Keine passenden Übungen.
+              </p>
+            )
           ) : (
             <ul className="space-y-1">
               {filtered.map((ex) => (
