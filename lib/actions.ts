@@ -417,6 +417,7 @@ export async function createExerciseAction(input: {
   groupSizeMax?: number;
   equipment?: string;
   tags?: string[];
+  videoUrl?: string;
 }) {
   const coachId = await requireCoachId();
   const supabase = await getSupabaseServer();
@@ -433,6 +434,7 @@ export async function createExerciseAction(input: {
       group_size_max: input.groupSizeMax ?? null,
       equipment: input.equipment ?? null,
       tags: input.tags ?? null,
+      video_url: input.videoUrl ?? null,
     })
     .select("id")
     .single();
@@ -449,6 +451,40 @@ export async function createExerciseAction(input: {
 
   revalidatePath("/exercises");
   return data?.id as string | undefined;
+}
+
+export async function updateExerciseAction(input: {
+  exerciseId: string;
+  fields: {
+    name?: string;
+    category?:
+      | "warm_up"
+      | "technical"
+      | "tactical"
+      | "physical"
+      | "points"
+      | "cool_down";
+    description?: string | null;
+    duration_minutes?: number | null;
+    ball_type?: "green" | "orange" | "red" | "hard" | null;
+    level?: string | null;
+    group_size_min?: number | null;
+    group_size_max?: number | null;
+    equipment?: string | null;
+    tags?: string[] | null;
+    video_url?: string | null;
+  };
+}) {
+  await requireCoachId();
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase
+    .from("exercises")
+    .update(input.fields)
+    .eq("id", input.exerciseId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/exercises");
+  revalidatePath(`/exercises/${input.exerciseId}`);
 }
 
 // ---------- coach exercise space ---------------------------------

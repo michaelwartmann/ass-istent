@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSupabaseServer } from "@/lib/supabase/server";
@@ -44,9 +44,18 @@ export default async function ExerciseDetailPage(
           <ArrowLeft className="h-3 w-3" />
           Übungen
         </Link>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight leading-tight">
-          {ex.name}
-        </h1>
+        <div className="mt-1 flex items-start justify-between gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight leading-tight">
+            {ex.name}
+          </h1>
+          <Link
+            href={`/exercises/${ex.id}/edit`}
+            className="inline-flex h-8 shrink-0 items-center gap-1 rounded-md px-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <Pencil className="h-3 w-3" />
+            Bearbeiten
+          </Link>
+        </div>
         <div className="mt-2 flex flex-wrap gap-2">
           <Badge variant="secondary">{categoryLabel(ex.category)}</Badge>
           {ex.ball_type ? (

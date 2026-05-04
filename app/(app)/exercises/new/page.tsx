@@ -1,4 +1,4 @@
-import { NewExerciseForm } from "./new-exercise-form";
+import { ExerciseForm } from "../exercise-form";
 
 export default function NewExercisePage() {
   return (
@@ -9,7 +9,7 @@ export default function NewExercisePage() {
         </p>
         <h1 className="text-2xl font-semibold tracking-tight">Anlegen</h1>
       </div>
-      <NewExerciseForm />
+      <ExerciseForm mode="create" />
     </div>
   );
 }
