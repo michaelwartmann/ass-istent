@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -44,21 +45,37 @@ export function PlanEditor({
 }) {
   const [pending, startTransition] = useTransition();
 
+  function showError(err: unknown, fallback: string) {
+    toast.error(err instanceof Error ? err.message : fallback);
+  }
+
   function addBlock(type: BlockType) {
     startTransition(async () => {
-      await addBlockAction({ groupId, weekOf, blockType: type });
+      try {
+        await addBlockAction({ groupId, weekOf, blockType: type });
+      } catch (err) {
+        showError(err, "Block konnte nicht angelegt werden.");
+      }
     });
   }
 
   function move(blockId: string, direction: "up" | "down") {
     startTransition(async () => {
-      await moveBlockAction({ groupId, blockId, direction });
+      try {
+        await moveBlockAction({ groupId, blockId, direction });
+      } catch (err) {
+        showError(err, "Block konnte nicht verschoben werden.");
+      }
     });
   }
 
   function remove(blockId: string) {
     startTransition(async () => {
-      await deleteBlockAction({ groupId, blockId });
+      try {
+        await deleteBlockAction({ groupId, blockId });
+      } catch (err) {
+        showError(err, "Block konnte nicht gelöscht werden.");
+      }
     });
   }
 
@@ -145,7 +162,7 @@ export function PlanEditor({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           {BLOCK_TYPES.map((t) => (
-            <DropdownMenuItem key={t} onSelect={() => addBlock(t)}>
+            <DropdownMenuItem key={t} onClick={() => addBlock(t)}>
               <span
                 className={`mr-2 inline-block h-2 w-2 rounded-full border ${blockBadgeClass(
                   t,
