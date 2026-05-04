@@ -565,6 +565,7 @@ export async function createExerciseAction(input: {
   groupSizeMax?: number;
   equipment?: string;
   tags?: string[];
+  videoUrl?: string;
 }) {
   const coachId = await requireCoachId();
   const supabase = await getSupabaseServer();
@@ -581,6 +582,7 @@ export async function createExerciseAction(input: {
       group_size_max: input.groupSizeMax ?? null,
       equipment: input.equipment ?? null,
       tags: input.tags ?? null,
+      video_url: input.videoUrl ?? null,
     })
     .select("id")
     .single();
@@ -676,6 +678,7 @@ export type ExerciseInput = {
   groupSizeMax?: number | null;
   equipment?: string | null;
   tags?: string[] | null;
+  videoUrl?: string | null;
 };
 
 function normalizeExercisePayload(input: ExerciseInput) {
@@ -692,6 +695,7 @@ function normalizeExercisePayload(input: ExerciseInput) {
     group_size_max: input.groupSizeMax ?? null,
     equipment: trim(input.equipment),
     tags: input.tags && input.tags.length ? input.tags : null,
+    video_url: trim(input.videoUrl),
   };
 }
 

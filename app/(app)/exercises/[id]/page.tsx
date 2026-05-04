@@ -94,6 +94,17 @@ export default async function ExerciseDetailPage(
         </Card>
       ) : null}
 
+      {ex.video_url ? (
+        <a
+          href={ex.video_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center text-sm text-primary underline-offset-4 hover:underline"
+        >
+          Video ansehen ↗
+        </a>
+      ) : null}
+
       {ex.equipment ? (
         <section>
           <p className="text-xs uppercase tracking-wider text-muted-foreground">

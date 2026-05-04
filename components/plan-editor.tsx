@@ -88,9 +88,13 @@ export function PlanEditor({
                   trigger={
                     <button
                       type="button"
-                      className="min-w-0 flex-1 truncate text-left text-sm font-medium hover:underline"
+                      className={`min-w-0 flex-1 truncate rounded border px-2 py-1 text-left text-sm transition-colors ${
+                        b.exercise
+                          ? "border-transparent font-medium hover:bg-muted"
+                          : "border-dashed border-muted-foreground/40 italic text-muted-foreground hover:border-[var(--clay)] hover:text-foreground"
+                      }`}
                     >
-                      {b.exercise?.name ?? "— Übung wählen —"}
+                      {b.exercise?.name ?? "Übung wählen…"}
                     </button>
                   }
                 />

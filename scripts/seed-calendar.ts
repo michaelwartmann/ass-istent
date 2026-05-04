@@ -87,8 +87,8 @@ function build2026(): DayRow[] {
   }
 
   // ─── NRW Schulferien Sommer 2026 ──────────────────────────────
-  // Sommerferien NRW: 25.06.–07.08.2026
-  for (const date of dateRange("2026-06-25", "2026-08-07")) {
+  // Sommerferien NRW: 20.07.–01.09.2026 (Mo–Di)
+  for (const date of dateRange("2026-07-20", "2026-09-01")) {
     out.push({ date, type: "schulferien", label: "Sommerferien NRW" });
   }
 
@@ -144,6 +144,18 @@ async function main() {
     );
   }
   const coachId = coach.id as string;
+
+  // Wipe schulferien rows for this coach in 2026 first — date ranges may
+  // shift between runs (e.g. corrected NRW Sommerferien dates) and upserts
+  // alone leave stale rows for dates no longer in the new range.
+  const { error: delErr } = await supabase
+    .from("calendar_days")
+    .delete()
+    .eq("coach_id", coachId)
+    .eq("type", "schulferien")
+    .gte("date", "2026-01-01")
+    .lte("date", "2026-12-31");
+  if (delErr) throw delErr;
 
   const rows = build2026();
   console.log(`Upserting ${rows.length} calendar days for ${COACH_NAME}…`);
