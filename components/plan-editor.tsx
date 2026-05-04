@@ -85,18 +85,12 @@ export function PlanEditor({
                   blockId={b.id}
                   blockType={b.block_type}
                   exercises={exercises}
-                  trigger={
-                    <button
-                      type="button"
-                      className={`min-w-0 flex-1 truncate rounded border px-2 py-1 text-left text-sm transition-colors ${
-                        b.exercise
-                          ? "border-transparent font-medium hover:bg-muted"
-                          : "border-dashed border-muted-foreground/40 italic text-muted-foreground hover:border-[var(--clay)] hover:text-foreground"
-                      }`}
-                    >
-                      {b.exercise?.name ?? "Übung wählen…"}
-                    </button>
-                  }
+                  triggerClassName={`min-w-0 flex-1 truncate rounded border px-2 py-1 text-left text-sm transition-colors ${
+                    b.exercise
+                      ? "border-transparent font-medium hover:bg-muted"
+                      : "border-dashed border-muted-foreground/40 italic text-muted-foreground hover:border-[var(--clay)] hover:text-foreground"
+                  }`}
+                  triggerLabel={b.exercise?.name ?? "Übung wählen…"}
                 />
                 {b.duration_minutes ? (
                   <Badge variant="secondary" className="shrink-0 text-[10px]">
