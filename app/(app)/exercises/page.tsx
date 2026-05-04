@@ -27,7 +27,7 @@ export default async function ExercisesPage() {
 
   const space: Record<string, SpaceState> = {};
   for (const row of spaceRows ?? []) {
-    space[row.exercise_id as string] = row.started_at ? "started" : "seed";
+    space[row.exercise_id as string] = row.started_at ? "started" : "favorite";
   }
 
   return (

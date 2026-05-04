@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
-import { Check, Plus, Search, Sprout, Trash2, X, Zap } from "lucide-react";
+import { Check, Plus, Search, Star, Trash2, X, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import {
 import { ballBadgeClass, ballLabel, categoryLabel } from "@/lib/format";
 import type { BallType, Exercise, ExerciseCategory } from "@/lib/types";
 
-export type SpaceState = "started" | "seed";
+export type SpaceState = "started" | "favorite";
 
 const CATEGORIES: { value: ExerciseCategory; label: string }[] = [
   { value: "warm_up", label: "Warm-up" },
@@ -115,16 +115,16 @@ function MeinBestand({
 }) {
   const inSpace = exercises.filter((e) => space[e.id]);
   const started = inSpace.filter((e) => space[e.id] === "started");
-  const seeds = inSpace.filter((e) => space[e.id] === "seed");
+  const favorites = inSpace.filter((e) => space[e.id] === "favorite");
 
   if (empty) {
     return (
       <div className="space-y-3 rounded-xl border border-dashed bg-muted/30 px-4 py-8 text-center">
-        <Sprout className="mx-auto h-10 w-10 text-[var(--clay)]" />
+        <Star className="mx-auto h-10 w-10 text-amber-500" />
         <p className="text-sm font-medium">Dein Bestand ist leer.</p>
         <p className="text-xs text-muted-foreground">
-          Lege im Katalog Übungen ab, die du benutzen willst — wie Samen, die
-          du dir aussuchst.
+          Speichere im Katalog Übungen, die du regelmäßig benutzt — als
+          Favoriten zum schnellen Zugriff.
         </p>
         <Button
           type="button"
@@ -147,11 +147,11 @@ function MeinBestand({
         emptyText="Keine aktive Übungen — wähle eine im Plan-Editor, dann landet sie hier."
       />
       <Section
-        title="Samen"
-        icon={<Sprout className="h-3.5 w-3.5 text-[var(--grass)]" />}
-        items={seeds}
-        state="seed"
-        emptyText="Keine Samen gespeichert. Im Katalog auf + tippen, um Übungen abzulegen."
+        title="Favoriten"
+        icon={<Star className="h-3.5 w-3.5 text-amber-500" />}
+        items={favorites}
+        state="favorite"
+        emptyText="Keine Favoriten gespeichert. Im Katalog auf + tippen, um Übungen abzulegen."
       />
     </div>
   );
@@ -261,8 +261,8 @@ function SpaceCard({
         >
           {state === "started" ? (
             <>
-              <Sprout className="mr-1 h-3 w-3" />
-              Auf Samen setzen
+              <Star className="mr-1 h-3 w-3" />
+              Als Favorit speichern
             </>
           ) : (
             <>

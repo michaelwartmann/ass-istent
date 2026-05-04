@@ -36,6 +36,14 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local PII / source spreadsheets — child photos and rosters never get committed
+/public/*.jpeg
+/public/*.jpg
+/public/*.heic
+/public/*.webp
+/public/*.xlsx
+/public/*.pdf
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

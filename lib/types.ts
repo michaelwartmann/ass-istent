@@ -83,6 +83,7 @@ export type Exercise = {
   duration_minutes: number | null;
   equipment: string | null;
   tags: string[] | null;
+  video_url: string | null;
   created_at: string;
 };
 
