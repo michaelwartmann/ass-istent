@@ -80,11 +80,18 @@ list views; only first names are surfaced.
 
 Catalog is **global** across all coaches; each coach has a per-coach
 **space** (`coach_exercises`) with two states: *Im Einsatz* (`started_at
-not null`) and *Samen* (null). The plan editor only picks from the
+not null`) and *Favoriten* (null). The plan editor only picks from the
 coach's space; first time an exercise is used in a plan it auto-promotes
-from Samen → Im Einsatz.
+from Favoriten → Im Einsatz.
 
-`/exercises/[id]` has a Bearbeiten pencil → full edit form.
+The catalog ships with **~120 curated German tennis drills** (Warm-up,
+Technik, Taktik, Athletik, Punktspiel, Cool-down — across Orange / Grün
+/ Hart / Erwachsene). Roughly 117 of them carry a YouTube demo link
+that renders as **"Video ansehen ↗"** on the exercise detail page.
+
+`/exercises/[id]` has a Bearbeiten pencil → full edit form (name,
+category, ball, dauer, level, group min/max, description, equipment,
+tags, **video URL**).
 
 ### Plans
 
@@ -149,6 +156,8 @@ Migrations live under `supabase/migrations/`:
 - `0002_roster_calendar.sql` — group_players, calendar_days, the four
   Lernziel columns, `note_date` on player_notes, backhand /
   description on players
+- `0003_exercises_video.sql` — `exercises.video_url` column for the
+  YouTube demo links
 
 `supabase/schema.sql` is the consolidated current schema.
 
@@ -173,11 +182,20 @@ Apply the schema:
 1. Open Supabase SQL Editor
 2. Paste `supabase/migrations/0001_multi_coach.sql` and run
 3. Paste `supabase/migrations/0002_roster_calendar.sql` and run
+4. Paste `supabase/migrations/0003_exercises_video.sql` and run
 
-Seed Michael's coach + groups + the global exercise catalog:
+Seed Michael's coach + groups + a small starter exercise set:
 
 ```bash
 npx tsx scripts/seed.ts
+```
+
+Import the curated 120-drill catalog from
+`public/exercises_database.json` (idempotent upsert by name; ~117 of
+120 carry a YouTube `video_url`):
+
+```bash
+npx tsx scripts/import-exercises.ts
 ```
 
 Seed the actual roster (41 kids across the Mi/Do groups):
@@ -186,14 +204,24 @@ Seed the actual roster (41 kids across the Mi/Do groups):
 npx tsx scripts/seed-roster.ts
 ```
 
-Seed the 2026 season calendar (NRW Feiertage, Sommerferien,
-Sondertermine):
+Seed the 2026 season calendar (NRW Feiertage, Sommerferien
+20.07.–01.09., Sondertermine):
 
 ```bash
 npx tsx scripts/seed-calendar.ts
 ```
 
-All three seeds are idempotent — re-running is safe.
+Pre-seed extra coach accounts so they can self-set their password on
+first login (one-shot, idempotent):
+
+```bash
+npx tsx scripts/add-coach.ts Sebastian Jonas
+```
+
+All seed/import scripts are idempotent — re-running is safe. The
+calendar seeder additionally **wipes existing schulferien rows** for
+the coach before upserting, so date corrections (e.g. fixing a wrong
+Sommerferien range) take full effect on re-run.
 
 ## Develop
 
