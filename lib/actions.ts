@@ -262,6 +262,113 @@ export async function setBlockExerciseAction(input: {
   revalidatePath(`/groups/${input.groupId}`);
 }
 
+export async function setBlockDurationAction(input: {
+  groupId: string;
+  blockId: string;
+  durationMinutes: number;
+}) {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+  await assertBlockOwned(supabase, input.blockId, coachId);
+
+  const minutes = Math.max(1, Math.round(input.durationMinutes));
+  const { error } = await supabase
+    .from("plan_blocks")
+    .update({ duration_minutes: minutes })
+    .eq("id", input.blockId);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/groups/${input.groupId}`);
+}
+
+// Closing routine (Schläger einsammeln, Feedback) is fixed at 5 min and not stored
+// as a real plan_block — it's rendered virtually at the end of every plan.
+const CLOSING_MINUTES = 5;
+
+function timeStringToMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+}
+
+// Scale all variable plan_blocks proportionally so they sum to
+// (lesson length − CLOSING_MINUTES). Rounding drift is corrected by
+// distributing the remainder over the largest blocks.
+export async function scalePlanBlocksAction(input: {
+  groupId: string;
+  weekOf: string;
+}) {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+
+  const { data: group, error: gErr } = await supabase
+    .from("groups")
+    .select("start_time, end_time")
+    .eq("id", input.groupId)
+    .single();
+  if (gErr) throw new Error(gErr.message);
+  const lessonMinutes =
+    timeStringToMinutes(group.end_time) - timeStringToMinutes(group.start_time);
+  const target = lessonMinutes - CLOSING_MINUTES;
+  if (target <= 0) throw new Error("lesson-too-short");
+
+  const { data: plan } = await supabase
+    .from("training_plans")
+    .select("id")
+    .eq("group_id", input.groupId)
+    .eq("week_of", input.weekOf)
+    .maybeSingle();
+  if (!plan) throw new Error("no-plan");
+
+  const { data: blocks, error: bErr } = await supabase
+    .from("plan_blocks")
+    .select("id, duration_minutes, order_index")
+    .eq("plan_id", plan.id)
+    .order("order_index", { ascending: true });
+  if (bErr) throw new Error(bErr.message);
+  if (!blocks || blocks.length === 0) throw new Error("no-blocks");
+
+  const current = blocks.map((b) => Math.max(1, b.duration_minutes ?? 0));
+  const sum = current.reduce((a, b) => a + b, 0);
+  if (sum === 0) throw new Error("no-duration");
+
+  const factor = target / sum;
+  const scaled = current.map((m) => Math.max(1, Math.round(m * factor)));
+
+  // Fix rounding drift so the total matches exactly. Adjust the largest blocks
+  // first because a ±1 there is least visible.
+  let drift = target - scaled.reduce((a, b) => a + b, 0);
+  if (drift !== 0) {
+    const order = scaled
+      .map((m, i) => ({ i, m }))
+      .sort((a, b) => b.m - a.m)
+      .map((x) => x.i);
+    let cursor = 0;
+    while (drift !== 0) {
+      const i = order[cursor % order.length];
+      if (drift > 0) {
+        scaled[i] += 1;
+        drift -= 1;
+      } else if (scaled[i] > 1) {
+        scaled[i] -= 1;
+        drift += 1;
+      }
+      cursor += 1;
+      if (cursor > order.length * 5) break; // safety
+    }
+  }
+
+  await Promise.all(
+    blocks.map((b, i) =>
+      supabase
+        .from("plan_blocks")
+        .update({ duration_minutes: scaled[i] })
+        .eq("id", b.id),
+    ),
+  );
+  revalidatePath(`/groups/${input.groupId}`);
+}
+
 export async function moveBlockAction(input: {
   groupId: string;
   blockId: string;

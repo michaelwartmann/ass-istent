@@ -29,6 +29,12 @@ import { AddPlayerSheet } from "./add-player-sheet";
 
 export const dynamic = "force-dynamic";
 
+function lessonMinutes(start: string, end: string): number {
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  return (eh || 0) * 60 + (em || 0) - ((sh || 0) * 60 + (sm || 0));
+}
+
 async function load(id: string, coachId: string) {
   const supabase = await getSupabaseServer();
   const weekOf = isoDate(currentWeekMonday());
@@ -246,6 +252,7 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
               weekOf={weekOf}
               blocks={blocks}
               exercises={spaceExercises}
+              lessonMinutes={lessonMinutes(group.start_time, group.end_time)}
             />
           </CardContent>
         </Card>
