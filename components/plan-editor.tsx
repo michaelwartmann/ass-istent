@@ -186,7 +186,7 @@ function ClosingRow() {
         Abschluss
       </span>
       <span className="min-w-0 flex-1 truncate text-sm italic text-muted-foreground">
-        Schläger einsammeln, Feedback
+        Platz fegen, Bälle sammeln
       </span>
       <Badge variant="outline" className="shrink-0 text-[10px]">
         {CLOSING_MINUTES} min · fix
