@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -16,11 +16,13 @@ import {
   addBlockAction,
   deleteBlockAction,
   moveBlockAction,
+  scalePlanBlocksAction,
 } from "@/lib/actions";
 import { blockBadgeClass, categoryLabel } from "@/lib/format";
 import type { BlockType, Exercise, PlanBlock } from "@/lib/types";
 import { ExercisePicker } from "./exercise-picker";
 import { ExerciseInfoSheet } from "./exercise-info-sheet";
+import { BlockDurationSheet } from "./block-duration-sheet";
 
 const BLOCK_TYPES: BlockType[] = [
   "warm_up",
@@ -31,6 +33,8 @@ const BLOCK_TYPES: BlockType[] = [
   "cool_down",
 ];
 
+const CLOSING_MINUTES = 5;
+
 type EnrichedBlock = PlanBlock & { exercise: Exercise | null };
 
 export function PlanEditor({
@@ -38,11 +42,13 @@ export function PlanEditor({
   weekOf,
   blocks,
   exercises,
+  lessonMinutes,
 }: {
   groupId: string;
   weekOf: string;
   blocks: EnrichedBlock[];
   exercises: Exercise[];
+  lessonMinutes: number;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -80,6 +86,32 @@ export function PlanEditor({
     });
   }
 
+  function scale() {
+    if (blocks.length === 0) {
+      toast.error("Erst Übungen hinzufügen.");
+      return;
+    }
+    startTransition(async () => {
+      try {
+        await scalePlanBlocksAction({ groupId, weekOf });
+        toast.success(`Auf ${target} min skaliert.`);
+      } catch (err) {
+        showError(err, "Skalieren fehlgeschlagen.");
+      }
+    });
+  }
+
+  const variableSum = blocks.reduce((s, b) => s + (b.duration_minutes ?? 0), 0);
+  const total = variableSum + CLOSING_MINUTES;
+  const target = lessonMinutes - CLOSING_MINUTES;
+  const delta = total - lessonMinutes;
+  const totalToneClass =
+    delta === 0
+      ? "text-emerald-600"
+      : Math.abs(delta) <= 2
+        ? "text-muted-foreground"
+        : "text-amber-600";
+
   return (
     <div className="space-y-2">
       {blocks.length === 0 ? (
@@ -103,6 +135,24 @@ export function PlanEditor({
           ))}
         </ul>
       )}
+
+      <ClosingRow />
+
+      <div className="flex items-center justify-between gap-2 px-1 pt-1 text-[11px]">
+        <span className={cn("tabular-nums", totalToneClass)}>
+          Gesamt {total} / {lessonMinutes} min
+          {delta === 0 ? " ✓" : delta > 0 ? ` (+${delta})` : ` (${delta})`}
+        </span>
+        <button
+          type="button"
+          onClick={scale}
+          disabled={pending || blocks.length === 0}
+          className="inline-flex items-center gap-1 rounded px-1 py-0.5 text-[var(--clay)] underline-offset-4 hover:underline disabled:opacity-50"
+        >
+          <Sparkles className="h-3 w-3" />
+          auf {target} min skalieren
+        </button>
+      </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger
@@ -129,6 +179,22 @@ export function PlanEditor({
   );
 }
 
+function ClosingRow() {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-dashed bg-muted/40 p-2">
+      <span className="shrink-0 rounded border border-muted-foreground/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Abschluss
+      </span>
+      <span className="min-w-0 flex-1 truncate text-sm italic text-muted-foreground">
+        Schläger einsammeln, Feedback
+      </span>
+      <Badge variant="outline" className="shrink-0 text-[10px]">
+        {CLOSING_MINUTES} min · fix
+      </Badge>
+    </div>
+  );
+}
+
 function BlockRow({
   block,
   index,
@@ -150,9 +216,11 @@ function BlockRow({
 }) {
   const [infoOpen, setInfoOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [durationOpen, setDurationOpen] = useState(false);
   const handleTitleClick = block.exercise
     ? () => setInfoOpen(true)
     : () => setPickerOpen(true);
+  const blockTitle = block.exercise?.name ?? categoryLabel(block.block_type);
 
   return (
     <li>
@@ -175,11 +243,14 @@ function BlockRow({
         >
           {block.exercise?.name ?? "Übung wählen…"}
         </button>
-        {block.duration_minutes ? (
-          <Badge variant="secondary" className="shrink-0 text-[10px]">
-            {block.duration_minutes} min
-          </Badge>
-        ) : null}
+        <button
+          type="button"
+          onClick={() => setDurationOpen(true)}
+          className="shrink-0 rounded border border-muted-foreground/30 bg-background px-2 py-0.5 text-[10px] font-medium tabular-nums hover:border-[var(--clay)] hover:text-[var(--clay)]"
+          aria-label="Dauer anpassen"
+        >
+          {block.duration_minutes ?? "?"} min
+        </button>
         <div className="flex shrink-0 items-center">
           <Button
             variant="ghost"
@@ -231,6 +302,15 @@ function BlockRow({
           onSwapRequested={() => setPickerOpen(true)}
         />
       ) : null}
+
+      <BlockDurationSheet
+        groupId={groupId}
+        blockId={block.id}
+        blockTitle={blockTitle}
+        initialMinutes={block.duration_minutes}
+        open={durationOpen}
+        onOpenChange={setDurationOpen}
+      />
     </li>
   );
 }
