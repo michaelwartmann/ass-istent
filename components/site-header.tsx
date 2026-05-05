@@ -70,9 +70,7 @@ export async function SiteHeader() {
           <span className="flex flex-col leading-tight">
             <span className="text-lg font-semibold tracking-tight">
               {coachName ? (
-                <span className="block text-foreground">
-                  {possessive(coachName)}
-                </span>
+                <span className="text-foreground">{possessive(coachName)} </span>
               ) : null}
               <span className="text-[var(--clay)]">ass</span>
               <span className="text-foreground">-istent</span>
