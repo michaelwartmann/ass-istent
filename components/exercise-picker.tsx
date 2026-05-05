@@ -36,15 +36,25 @@ export function ExercisePicker({
   exercises,
   triggerClassName,
   triggerLabel,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   groupId: string;
   blockId: string;
   blockType: ExerciseCategory;
   exercises: Exercise[];
   triggerClassName?: string;
-  triggerLabel: React.ReactNode;
+  triggerLabel?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = (v: boolean) => {
+    if (!isControlled) setInternalOpen(v);
+    onOpenChange?.(v);
+  };
   const [query, setQuery] = useState("");
   const [pending, startTransition] = useTransition();
 
@@ -89,7 +99,9 @@ export function ExercisePicker({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className={triggerClassName}>{triggerLabel}</DialogTrigger>
+      {triggerLabel !== undefined ? (
+        <DialogTrigger className={triggerClassName}>{triggerLabel}</DialogTrigger>
+      ) : null}
       <DialogContent className="max-h-[85dvh] overflow-hidden p-0 sm:max-w-lg">
         <DialogHeader className="px-4 pb-2 pt-4">
           <DialogTitle>Übung wählen</DialogTitle>

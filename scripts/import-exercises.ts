@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
-// Import the curated exercise catalog from public/exercises_database.json
-// into the global `exercises` table. Idempotent — re-running updates rows
+// Import the curated exercise catalog into the global `exercises` table.
+// Reads public/exercises_database.json AND public/new_exercises.json (weekly
+// add-ons from Sonnet) in sequence. Idempotent — re-running updates rows
 // matched by `name`, never duplicates.
 //
 // Prereqs:
@@ -159,16 +160,26 @@ function mapJsonRowToDbRow(row: JsonExercise): DbRow {
 
 // ---------- main -------------------------------------------------------
 
-async function main() {
-  const jsonPath = resolve(process.cwd(), "public/exercises_database.json");
-  const root = JSON.parse(readFileSync(jsonPath, "utf8")) as JsonRoot;
-  console.log(`Importing ${root.exercises.length} exercises from ${jsonPath}`);
+async function importFile(jsonPath: string): Promise<{ inserted: number; updated: number }> {
+  let raw: string;
+  try {
+    raw = readFileSync(jsonPath, "utf8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+      console.log(`(skip) ${jsonPath} does not exist`);
+      return { inserted: 0, updated: 0 };
+    }
+    throw err;
+  }
+
+  const root = JSON.parse(raw) as JsonRoot;
+  console.log(`\nImporting ${root.exercises.length} exercises from ${jsonPath}`);
 
   let inserted = 0;
   let updated = 0;
 
-  for (const raw of root.exercises) {
-    const payload = mapJsonRowToDbRow(raw);
+  for (const entry of root.exercises) {
+    const payload = mapJsonRowToDbRow(entry);
 
     const { data: existing, error: selErr } = await supabase
       .from("exercises")
@@ -202,7 +213,24 @@ async function main() {
     }
   }
 
-  console.log(`\nDone. ${inserted} inserted, ${updated} updated.`);
+  return { inserted, updated };
+}
+
+async function main() {
+  const sources = [
+    resolve(process.cwd(), "public/exercises_database.json"),
+    resolve(process.cwd(), "public/new_exercises.json"),
+  ];
+
+  let totalInserted = 0;
+  let totalUpdated = 0;
+  for (const path of sources) {
+    const { inserted, updated } = await importFile(path);
+    totalInserted += inserted;
+    totalUpdated += updated;
+  }
+
+  console.log(`\nDone. ${totalInserted} inserted, ${totalUpdated} updated.`);
 }
 
 main().catch((err) => {

@@ -1,0 +1,73 @@
+{
+  "weekOf": "2026-05-04",
+  "label": "KW19 (6.–7. Mai 2026)",
+  "templates": {
+    "A": {
+      "theme": "Footwork, Kraft, Tiefe, Aufschlag als Waffe",
+      "blocks": [
+        { "blockType": "warm_up",   "exerciseSlug": "hart-djokovic-spiel",            "durationMinutes": 10, "notes": "Warm-up" },
+        { "blockType": "technical", "exerciseSlug": "hart-minicourt-nur-vh-oder-rh",  "durationMinutes": 15, "notes": "Aufschlag von Anfang an; kooperativ → Netzangriff → Punkte" },
+        { "blockType": "tactical",  "exerciseSlug": "hart-tiefenrallye-kooperativ",   "durationMinutes": 10, "notes": "Crosscourt, tiefer als Aufschlaglinie, Rekord zählen" },
+        { "blockType": "tactical",  "exerciseSlug": "hart-kurzer-ball-angriff-pflicht","durationMinutes": 12, "notes": "Kurzer Ball = Angriffspflicht" },
+        { "blockType": "tactical",  "exerciseSlug": "hart-jeder-ball-ist-aufschlag",  "durationMinutes": 13, "notes": "Jeder Ball darf hinter Aufschlaglinie einspringen" }
+      ]
+    },
+    "B": {
+      "theme": "Grundtechnik VH & RH, Aufschlag, Spaß",
+      "blocks": [
+        { "blockType": "warm_up",   "exerciseSlug": "orange-freeze-spiel",                  "durationMinutes": 5,  "notes": "Individuell, freie Bewegung, einfrieren auf Kommando" },
+        { "blockType": "technical", "exerciseSlug": "orange-vh-aus-der-hand-aufschalglinie","durationMinutes": 10, "notes": "Ein Eimer VH aus der Hand, auch 2. Aufschlag-Bewegung" },
+        { "blockType": "technical", "exerciseSlug": "orange-handfeed-rh-zwei-reihen",       "durationMinutes": 10, "notes": "Trainer feedet in zwei Reihen" },
+        { "blockType": "physical",  "exerciseSlug": "orange-ballrennen",                    "durationMinutes": 5,  "notes": "Silly run-around game, Teams" },
+        { "blockType": "technical", "exerciseSlug": "orange-schaufel-aufschlag",            "durationMinutes": 12, "notes": "Aufschlagpraxis" },
+        { "blockType": "points",    "exerciseSlug": "orange-king-of-the-mini-court",        "durationMinutes": 18, "notes": "Punkte spielen mit Rotation" }
+      ]
+    },
+    "C": {
+      "theme": "Footwork, VH/RH Technik + Tiefe, Aufschlag einführen, Doppel",
+      "blocks": [
+        { "blockType": "warm_up",   "exerciseSlug": "hart-djokovic-spiel",            "durationMinutes": 10, "notes": "Warm-up" },
+        { "blockType": "technical", "exerciseSlug": "hart-minicourt-nur-vh-oder-rh",  "durationMinutes": 12, "notes": "Erst kooperativ, dann Netzangriff, dann Punkte" },
+        { "blockType": "technical", "exerciseSlug": "hart-partner-handfeed-vh-rh",    "durationMinutes": 10, "notes": "Fokus Technik + Tiefe; bei ungerader Zahl spielt Trainer mit oder 1 Spieler sammelt" },
+        { "blockType": "tactical",  "exerciseSlug": "hart-tiefenrallye-kooperativ",   "durationMinutes": 8,  "notes": "Cross halten, Rekord zählen" },
+        { "blockType": "technical", "exerciseSlug": "hart-aufschlag-nur-ubers-netz",  "durationMinutes": 8,  "notes": "Aufschlag muss nur übers Netz, noch kein Feld-Zwang" },
+        { "blockType": "points",    "exerciseSlug": "hart-doppel-rotierende-teams",   "durationMinutes": 12, "notes": "Doppel mit wechselnden Teams" }
+      ]
+    },
+    "D": {
+      "theme": "Ballgefühl, erste Schläge, kooperatives Spielen",
+      "blocks": [
+        { "blockType": "warm_up",   "exerciseSlug": "erwachsene-ball-chaos-warm-up",            "durationMinutes": 8,  "notes": "Level 1: Schläger, Level 2: Hand — beide in dieser Übung enthalten" },
+        { "blockType": "technical", "exerciseSlug": "erwachsene-netz-rallye-volleyball-regel",  "durationMinutes": 10, "notes": "Am Netz, Volleyball-Regel wenn zu schnell" },
+        { "blockType": "technical", "exerciseSlug": "erwachsene-vh-selbsteinwurf-aufschalglinie","durationMinutes": 12, "notes": "Selbst einwerfen, bei Erfolg zurücktreten" },
+        { "blockType": "technical", "exerciseSlug": "erwachsene-partner-handfeed-rh",           "durationMinutes": 10, "notes": "Partner feedet RH, dann Rollen tauschen" },
+        { "blockType": "technical", "exerciseSlug": "hart-aufschlag-nur-ubers-netz",            "durationMinutes": 10, "notes": "Nur übers Netz, kein Aufschlagfeld-Zwang" },
+        { "blockType": "points",    "exerciseSlug": "orange-king-of-the-mini-court",            "durationMinutes": 10, "notes": "Minicourt oder Vollfeld je nach Niveau" }
+      ]
+    },
+    "E": {
+      "theme": "Kennenlernen, Niveau einschätzen, Wünsche erfragen",
+      "blocks": [
+        { "blockType": "warm_up",   "exerciseSlug": "hart-zweier-volley-am-netz",        "durationMinutes": 8,  "notes": "Trainer spielt mit, Gespräch + Beobachtung" },
+        { "blockType": "warm_up",   "exerciseSlug": "hart-lockeres-einspielen-vollfeld", "durationMinutes": 8,  "notes": "Spieler spielen miteinander, Trainer beobachtet" },
+        { "blockType": "technical", "exerciseSlug": "hart-partner-handfeed-vh-rh",       "durationMinutes": 8,  "notes": "Trainer feedet und beobachtet Technik" },
+        { "blockType": "technical", "exerciseSlug": "hart-ruckhand-longline-mit-druck",  "durationMinutes": 8,  "notes": "VH + RH Drills" },
+        { "blockType": "tactical",  "exerciseSlug": "hart-tiefenrallye-kooperativ",      "durationMinutes": 8,  "notes": "Grundlinienrallye zur Niveaueinschätzung" },
+        { "blockType": "technical", "exerciseSlug": "hart-erster-zweiter-aufschlag",     "durationMinutes": 8,  "notes": "Aufschlagrunde" },
+        { "blockType": "points",    "exerciseSlug": "hart-doppel-satze-auf-4",           "durationMinutes": 12, "notes": "Punkte: Doppel gegen Trainer oder Einzel rotierend" }
+      ]
+    }
+  },
+  "groups": [
+    { "groupId": "80092da7-346c-4964-ba54-e5c95e3109ec", "groupName": "5er Jungen Übergang grün→hart", "template": "C" },
+    { "groupId": "49bf315e-b02b-469d-bf97-e678ee91a010", "groupName": "6er Midcourt",                   "template": "B" },
+    { "groupId": "d07c35b3-7eca-43ff-b74b-f89d800f1564", "groupName": "Mädchengruppe Übergang hart",    "template": "C" },
+    { "groupId": "51dd428a-21fc-4ce1-901a-7a5e60626679", "groupName": "Juniorinnen 17J",                "template": "A" },
+    { "groupId": "ba1d8602-009a-4e77-8c1d-f6c7652a6519", "groupName": "VHS Anfängerkurs",               "template": "D" },
+    { "groupId": "bad34f73-9c76-4063-b115-c48041ffa9f1", "groupName": "Midcourt Gruppe",                "template": "B" },
+    { "groupId": "adc40adf-7ae9-4398-9807-a13c59ec79f1", "groupName": "7er Mädchen",                    "template": "C" },
+    { "groupId": "337df064-010f-4c61-b8e6-fdd5cca677d2", "groupName": "5er Mixed",                      "template": "C" },
+    { "groupId": "722c3227-742a-44e8-8237-cd39a9e48dc7", "groupName": "Damen II (TuB Bocholt)",         "template": "A" },
+    { "groupId": "66a13200-4555-4661-80a3-4ea8f54047e5", "groupName": "2er Herren",                     "template": "E" }
+  ]
+}

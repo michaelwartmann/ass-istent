@@ -49,3 +49,4 @@ next-env.d.ts
 /public/*.webp
 /public/*.xlsx
 /public/*.pdf
+/public/*.docx

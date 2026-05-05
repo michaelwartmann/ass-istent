@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,7 @@ import {
 import { blockBadgeClass, categoryLabel } from "@/lib/format";
 import type { BlockType, Exercise, PlanBlock } from "@/lib/types";
 import { ExercisePicker } from "./exercise-picker";
+import { ExerciseInfoSheet } from "./exercise-info-sheet";
 
 const BLOCK_TYPES: BlockType[] = [
   "warm_up",
@@ -88,66 +89,17 @@ export function PlanEditor({
       ) : (
         <ul className="space-y-2">
           {blocks.map((b, i) => (
-            <li key={b.id}>
-              <div className="flex items-center gap-2 rounded-md border bg-card p-2">
-                <span
-                  className={`shrink-0 rounded px-2 py-1 text-[10px] font-semibold uppercase tracking-wider border ${blockBadgeClass(
-                    b.block_type,
-                  )}`}
-                >
-                  {categoryLabel(b.block_type)}
-                </span>
-                <ExercisePicker
-                  groupId={groupId}
-                  blockId={b.id}
-                  blockType={b.block_type}
-                  exercises={exercises}
-                  triggerClassName={`min-w-0 flex-1 truncate rounded border px-2 py-1 text-left text-sm transition-colors ${
-                    b.exercise
-                      ? "border-transparent font-medium hover:bg-muted"
-                      : "border-dashed border-muted-foreground/40 italic text-muted-foreground hover:border-[var(--clay)] hover:text-foreground"
-                  }`}
-                  triggerLabel={b.exercise?.name ?? "Übung wählen…"}
-                />
-                {b.duration_minutes ? (
-                  <Badge variant="secondary" className="shrink-0 text-[10px]">
-                    {b.duration_minutes} min
-                  </Badge>
-                ) : null}
-                <div className="flex shrink-0 items-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="nach oben"
-                    disabled={pending || i === 0}
-                    onClick={() => move(b.id, "up")}
-                    className="h-7 w-7"
-                  >
-                    <ChevronUp className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="nach unten"
-                    disabled={pending || i === blocks.length - 1}
-                    onClick={() => move(b.id, "down")}
-                    className="h-7 w-7"
-                  >
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="löschen"
-                    disabled={pending}
-                    onClick={() => remove(b.id)}
-                    className="h-7 w-7 text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </li>
+            <BlockRow
+              key={b.id}
+              block={b}
+              index={i}
+              isLast={i === blocks.length - 1}
+              groupId={groupId}
+              exercises={exercises}
+              pending={pending}
+              onMove={move}
+              onRemove={remove}
+            />
           ))}
         </ul>
       )}
@@ -174,5 +126,111 @@ export function PlanEditor({
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
+  );
+}
+
+function BlockRow({
+  block,
+  index,
+  isLast,
+  groupId,
+  exercises,
+  pending,
+  onMove,
+  onRemove,
+}: {
+  block: EnrichedBlock;
+  index: number;
+  isLast: boolean;
+  groupId: string;
+  exercises: Exercise[];
+  pending: boolean;
+  onMove: (blockId: string, direction: "up" | "down") => void;
+  onRemove: (blockId: string) => void;
+}) {
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const handleTitleClick = block.exercise
+    ? () => setInfoOpen(true)
+    : () => setPickerOpen(true);
+
+  return (
+    <li>
+      <div className="flex items-center gap-2 rounded-md border bg-card p-2">
+        <span
+          className={`shrink-0 rounded px-2 py-1 text-[10px] font-semibold uppercase tracking-wider border ${blockBadgeClass(
+            block.block_type,
+          )}`}
+        >
+          {categoryLabel(block.block_type)}
+        </span>
+        <button
+          type="button"
+          onClick={handleTitleClick}
+          className={`min-w-0 flex-1 truncate rounded border px-2 py-1 text-left text-sm transition-colors ${
+            block.exercise
+              ? "border-transparent font-medium hover:bg-muted"
+              : "border-dashed border-muted-foreground/40 italic text-muted-foreground hover:border-[var(--clay)] hover:text-foreground"
+          }`}
+        >
+          {block.exercise?.name ?? "Übung wählen…"}
+        </button>
+        {block.duration_minutes ? (
+          <Badge variant="secondary" className="shrink-0 text-[10px]">
+            {block.duration_minutes} min
+          </Badge>
+        ) : null}
+        <div className="flex shrink-0 items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="nach oben"
+            disabled={pending || index === 0}
+            onClick={() => onMove(block.id, "up")}
+            className="h-7 w-7"
+          >
+            <ChevronUp className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="nach unten"
+            disabled={pending || isLast}
+            onClick={() => onMove(block.id, "down")}
+            className="h-7 w-7"
+          >
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="löschen"
+            disabled={pending}
+            onClick={() => onRemove(block.id)}
+            className="h-7 w-7 text-destructive hover:text-destructive"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <ExercisePicker
+        groupId={groupId}
+        blockId={block.id}
+        blockType={block.block_type}
+        exercises={exercises}
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+      />
+
+      {block.exercise ? (
+        <ExerciseInfoSheet
+          exercise={block.exercise}
+          open={infoOpen}
+          onOpenChange={setInfoOpen}
+          onSwapRequested={() => setPickerOpen(true)}
+        />
+      ) : null}
+    </li>
   );
 }
