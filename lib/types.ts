@@ -130,3 +130,21 @@ export type PlanBlock = {
   duration_minutes: number | null;
   notes: string | null;
 };
+
+export type AttendanceStatus = "present" | "absent" | "excused";
+
+export type LessonSession = {
+  id: string;
+  group_id: string;
+  session_date: string; // "YYYY-MM-DD"
+  cancelled: boolean;
+  notes: string | null;
+  created_at: string;
+};
+
+export type AttendanceRecord = {
+  session_id: string;
+  player_id: string;
+  status: AttendanceStatus;
+  recorded_at: string;
+};

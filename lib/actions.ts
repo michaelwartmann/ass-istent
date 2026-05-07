@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseServer } from "@/lib/supabase/server";
 import { requireCoachId } from "@/lib/currentCoach";
-import type { Backhand, BlockType, Hand, NoteCategory } from "@/lib/types";
+import type {
+  AttendanceStatus,
+  Backhand,
+  BlockType,
+  Hand,
+  NoteCategory,
+} from "@/lib/types";
 
 // All actions run with a coach session. They thread coach_id through writes
 // and verify ownership before mutating existing rows — RLS is open at the DB
@@ -821,4 +827,142 @@ export async function updateExerciseAction(input: {
   if (error) throw new Error(error.message);
   revalidatePath("/exercises");
   revalidatePath(`/exercises/${input.exerciseId}`);
+}
+
+// ---------- attendance ------------------------------------------------
+
+async function ensureSession(
+  groupId: string,
+  sessionDate: string,
+): Promise<string> {
+  const supabase = await getSupabaseServer();
+  const { data: existing, error: selErr } = await supabase
+    .from("lesson_sessions")
+    .select("id")
+    .eq("group_id", groupId)
+    .eq("session_date", sessionDate)
+    .maybeSingle();
+  if (selErr) throw new Error(selErr.message);
+  if (existing) return existing.id as string;
+
+  const { data: created, error } = await supabase
+    .from("lesson_sessions")
+    .insert({ group_id: groupId, session_date: sessionDate })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  return created.id as string;
+}
+
+export async function setAttendanceAction(input: {
+  groupId: string;
+  sessionDate: string;
+  playerId: string;
+  status: AttendanceStatus;
+}) {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+  await assertPlayerOwned(supabase, input.playerId, coachId);
+  if (input.sessionDate > todayBerlin()) {
+    throw new Error("future-date");
+  }
+
+  const sessionId = await ensureSession(input.groupId, input.sessionDate);
+  const { error } = await supabase
+    .from("attendance")
+    .upsert(
+      {
+        session_id: sessionId,
+        player_id: input.playerId,
+        status: input.status,
+        recorded_at: new Date().toISOString(),
+      },
+      { onConflict: "session_id,player_id" },
+    );
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/groups/${input.groupId}`);
+  revalidatePath(`/groups/${input.groupId}/report`);
+}
+
+export async function clearAttendanceAction(input: {
+  groupId: string;
+  sessionDate: string;
+  playerId: string;
+}) {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+  await assertPlayerOwned(supabase, input.playerId, coachId);
+
+  // Look up the session — if it doesn't exist there's nothing to clear.
+  const { data: session } = await supabase
+    .from("lesson_sessions")
+    .select("id")
+    .eq("group_id", input.groupId)
+    .eq("session_date", input.sessionDate)
+    .maybeSingle();
+  if (!session) return;
+
+  const { error } = await supabase
+    .from("attendance")
+    .delete()
+    .eq("session_id", session.id)
+    .eq("player_id", input.playerId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/groups/${input.groupId}`);
+  revalidatePath(`/groups/${input.groupId}/report`);
+}
+
+export async function getAttendanceForDateAction(input: {
+  groupId: string;
+  sessionDate: string;
+}): Promise<{
+  attendance: Record<string, AttendanceStatus>;
+  cancelled: boolean;
+}> {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+
+  const { data: session } = await supabase
+    .from("lesson_sessions")
+    .select("id, cancelled")
+    .eq("group_id", input.groupId)
+    .eq("session_date", input.sessionDate)
+    .maybeSingle();
+  if (!session) return { attendance: {}, cancelled: false };
+
+  const { data: rows } = await supabase
+    .from("attendance")
+    .select("player_id, status")
+    .eq("session_id", session.id);
+
+  const attendance: Record<string, AttendanceStatus> = {};
+  for (const r of rows ?? []) {
+    attendance[r.player_id as string] = r.status as AttendanceStatus;
+  }
+  return { attendance, cancelled: !!session.cancelled };
+}
+
+export async function setSessionCancelledAction(input: {
+  groupId: string;
+  sessionDate: string;
+  cancelled: boolean;
+}) {
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+
+  const sessionId = await ensureSession(input.groupId, input.sessionDate);
+  const { error } = await supabase
+    .from("lesson_sessions")
+    .update({ cancelled: input.cancelled })
+    .eq("id", sessionId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/groups/${input.groupId}`);
+  revalidatePath(`/groups/${input.groupId}/report`);
 }
