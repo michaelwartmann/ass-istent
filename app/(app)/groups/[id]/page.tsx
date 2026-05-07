@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { addDays, parseISO } from "date-fns";
-import { ArrowLeft, BarChart3, MapPin, Pencil } from "lucide-react";
+import { addDays, getISOWeek, parseISO } from "date-fns";
+import {
+  ArrowLeft,
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Pencil,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -13,9 +20,12 @@ import {
   ballBadgeClass,
   ballLabel,
   formatDayShort,
+  formatPlayerName,
   formatTimeRange,
+  initials,
   isoDate,
   currentWeekMonday,
+  shiftWeek,
 } from "@/lib/format";
 import type {
   AttendanceStatus,
@@ -50,9 +60,19 @@ function todayBerlinIso(): string {
   }).format(new Date());
 }
 
-async function load(id: string, coachId: string) {
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+function resolveMonday(weekParam: string | undefined): Date {
+  if (!weekParam || !ISO_DATE.test(weekParam)) return currentWeekMonday();
+  const parsed = parseISO(weekParam);
+  if (Number.isNaN(parsed.getTime())) return currentWeekMonday();
+  // Snap to Monday of that week — defensive against ?week=Wed-of-some-week.
+  return currentWeekMonday(parsed);
+}
+
+async function load(id: string, coachId: string, monday: Date) {
   const supabase = await getSupabaseServer();
-  const weekOf = isoDate(currentWeekMonday());
+  const weekOf = isoDate(monday);
 
   const [
     { data: group, error: gErr },
@@ -151,30 +171,30 @@ async function load(id: string, coachId: string) {
     exercise: b.exercise_id ? (exerciseMap.get(b.exercise_id) ?? null) : null,
   }));
 
-  // Attendance for this week's lesson date.
+  // Attendance for the lesson date in the week being viewed.
   const today = todayBerlinIso();
-  const rawSessionDate = lessonDateForWeek(
-    currentWeekMonday(),
-    (group as Group).day_of_week,
-  );
-  const sessionDate = rawSessionDate > today ? today : rawSessionDate;
+  const sessionDate = lessonDateForWeek(monday, (group as Group).day_of_week);
+  const isFutureSession = sessionDate > today;
 
   const initialAttendance: Record<string, AttendanceStatus> = {};
   let initialCancelled = false;
-  const { data: session } = await supabase
-    .from("lesson_sessions")
-    .select("id, cancelled")
-    .eq("group_id", id)
-    .eq("session_date", sessionDate)
-    .maybeSingle();
-  if (session) {
-    initialCancelled = !!session.cancelled;
-    const { data: rows } = await supabase
-      .from("attendance")
-      .select("player_id, status")
-      .eq("session_id", session.id);
-    for (const r of rows ?? []) {
-      initialAttendance[r.player_id as string] = r.status as AttendanceStatus;
+  if (!isFutureSession) {
+    const { data: session } = await supabase
+      .from("lesson_sessions")
+      .select("id, cancelled")
+      .eq("group_id", id)
+      .eq("session_date", sessionDate)
+      .maybeSingle();
+    if (session) {
+      initialCancelled = !!session.cancelled;
+      const { data: rows } = await supabase
+        .from("attendance")
+        .select("player_id, status")
+        .eq("session_id", session.id);
+      for (const r of rows ?? []) {
+        initialAttendance[r.player_id as string] =
+          r.status as AttendanceStatus;
+      }
     }
   }
 
@@ -189,14 +209,20 @@ async function load(id: string, coachId: string) {
     sessionDate,
     initialAttendance,
     initialCancelled,
-    todayIso: today,
+    isFutureSession,
   };
 }
 
 export default async function GroupPage(props: PageProps<"/groups/[id]">) {
   const coachId = await requireCoachId();
   const { id } = await props.params;
-  const data = await load(id, coachId);
+  const sp = await props.searchParams;
+  const weekParam = typeof sp.week === "string" ? sp.week : undefined;
+  const monday = resolveMonday(weekParam);
+  const isCurrentWeek = isoDate(monday) === isoDate(currentWeekMonday());
+  const prevWeekIso = isoDate(shiftWeek(monday, -1));
+  const nextWeekIso = isoDate(shiftWeek(monday, +1));
+  const data = await load(id, coachId, monday);
   if (!data) notFound();
 
   const {
@@ -209,13 +235,18 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
     sessionDate,
     initialAttendance,
     initialCancelled,
+    isFutureSession,
   } = data;
+  const weekLabel = isCurrentWeek
+    ? "Plan dieser Woche"
+    : `Plan KW ${getISOWeek(monday)}`;
+  const wochenplanHref = isCurrentWeek ? "/" : `/?week=${weekOf}`;
 
   return (
     <div className="space-y-5">
       <div>
         <Link
-          href="/"
+          href={wochenplanHref}
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-3 w-3" />
@@ -266,28 +297,93 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
       <section className="space-y-2">
         <div className="flex items-baseline justify-between gap-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Anwesenheit · {formatDayShort(parseISO(sessionDate))} (
-            {players.length})
+            {isFutureSession ? "Spieler" : "Anwesenheit"} ·{" "}
+            {formatDayShort(parseISO(sessionDate))} ({players.length})
           </h2>
           <AddPlayerSheet groupId={group.id} candidates={candidates} />
         </div>
-        <GroupAttendanceList
-          groupId={group.id}
-          players={players}
-          sessionDate={sessionDate}
-          initialAttendance={initialAttendance}
-          initialCancelled={initialCancelled}
-        />
+        {isFutureSession ? (
+          players.length === 0 ? (
+            <p className="rounded-md border border-dashed bg-muted/30 px-3 py-4 text-center text-sm text-muted-foreground">
+              Noch keine Spieler in dieser Gruppe.
+            </p>
+          ) : (
+            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {players.map((p) => (
+                <li key={p.id}>
+                  <Link
+                    href={`/players/${p.id}`}
+                    className="flex items-center gap-2 rounded-md border bg-card p-2 transition-all duration-200 active:scale-[0.97] hover:bg-accent"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-clay-soft text-sm font-semibold">
+                      {initials(p)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium leading-tight">
+                        {formatPlayerName(p)}
+                      </span>
+                      {p.year_of_birth ? (
+                        <span className="block text-[11px] text-muted-foreground">
+                          Jg. {p.year_of_birth}
+                        </span>
+                      ) : null}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )
+        ) : (
+          <GroupAttendanceList
+            groupId={group.id}
+            players={players}
+            sessionDate={sessionDate}
+            initialAttendance={initialAttendance}
+            initialCancelled={initialCancelled}
+          />
+        )}
       </section>
 
       <section className="space-y-2">
         <div className="flex items-baseline justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Plan dieser Woche
+            {weekLabel}
           </h2>
           <span className="text-[11px] text-muted-foreground">
             ab {weekOf.split("-").reverse().join(".")}
           </span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <Link
+            href={`/groups/${group.id}?week=${prevWeekIso}`}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "gap-1",
+            )}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Vorherige
+          </Link>
+          {!isCurrentWeek ? (
+            <Link
+              href={`/groups/${group.id}`}
+              className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+            >
+              Heute
+            </Link>
+          ) : (
+            <span />
+          )}
+          <Link
+            href={`/groups/${group.id}?week=${nextWeekIso}`}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "gap-1",
+            )}
+          >
+            Nächste
+            <ChevronRight className="h-4 w-4" />
+          </Link>
         </div>
         <Card>
           <CardContent className="p-3">

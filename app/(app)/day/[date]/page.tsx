@@ -125,7 +125,7 @@ export default async function DayPage(props: PageProps<"/day/[date]">) {
             <section key={g.id} className="space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <Link
-                  href={`/groups/${g.id}`}
+                  href={`/groups/${g.id}?week=${weekIso}`}
                   className="min-w-0 flex-1"
                 >
                   <h2 className="truncate font-semibold tracking-tight leading-tight">
