@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Pencil } from "lucide-react";
+import { addDays } from "date-fns";
+import { ArrowLeft, BarChart3, MapPin, Pencil } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import {
   currentWeekMonday,
 } from "@/lib/format";
 import type {
+  AttendanceStatus,
   Exercise,
   Group,
   PlanBlock,
@@ -25,6 +27,7 @@ import type {
   TrainingPlan,
 } from "@/lib/types";
 import { PlanEditor } from "@/components/plan-editor";
+import { AttendanceSheet } from "@/components/attendance-sheet";
 import { AddPlayerSheet } from "./add-player-sheet";
 
 export const dynamic = "force-dynamic";
@@ -33,6 +36,19 @@ function lessonMinutes(start: string, end: string): number {
   const [sh, sm] = start.split(":").map(Number);
   const [eh, em] = end.split(":").map(Number);
   return (eh || 0) * 60 + (em || 0) - ((sh || 0) * 60 + (sm || 0));
+}
+
+function lessonDateForWeek(monday: Date, dayOfWeek: number): string {
+  return isoDate(addDays(monday, Math.max(0, dayOfWeek - 1)));
+}
+
+function todayBerlinIso(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Berlin",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 async function load(id: string, coachId: string) {
@@ -136,6 +152,33 @@ async function load(id: string, coachId: string) {
     exercise: b.exercise_id ? (exerciseMap.get(b.exercise_id) ?? null) : null,
   }));
 
+  // Attendance for this week's lesson date.
+  const today = todayBerlinIso();
+  const rawSessionDate = lessonDateForWeek(
+    currentWeekMonday(),
+    (group as Group).day_of_week,
+  );
+  const sessionDate = rawSessionDate > today ? today : rawSessionDate;
+
+  const initialAttendance: Record<string, AttendanceStatus> = {};
+  let initialCancelled = false;
+  const { data: session } = await supabase
+    .from("lesson_sessions")
+    .select("id, cancelled")
+    .eq("group_id", id)
+    .eq("session_date", sessionDate)
+    .maybeSingle();
+  if (session) {
+    initialCancelled = !!session.cancelled;
+    const { data: rows } = await supabase
+      .from("attendance")
+      .select("player_id, status")
+      .eq("session_id", session.id);
+    for (const r of rows ?? []) {
+      initialAttendance[r.player_id as string] = r.status as AttendanceStatus;
+    }
+  }
+
   return {
     group: group as Group,
     players,
@@ -144,6 +187,10 @@ async function load(id: string, coachId: string) {
     plan: (plan ?? null) as TrainingPlan | null,
     blocks: enrichedBlocks,
     weekOf,
+    sessionDate,
+    initialAttendance,
+    initialCancelled,
+    todayIso: today,
   };
 }
 
@@ -153,7 +200,18 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
   const data = await load(id, coachId);
   if (!data) notFound();
 
-  const { group, players, candidates, spaceExercises, blocks, weekOf } = data;
+  const {
+    group,
+    players,
+    candidates,
+    spaceExercises,
+    blocks,
+    weekOf,
+    sessionDate,
+    initialAttendance,
+    initialCancelled,
+    todayIso,
+  } = data;
 
   return (
     <div className="space-y-5">
@@ -169,6 +227,16 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
           <h1 className="flex-1 text-2xl font-semibold tracking-tight leading-tight">
             {group.name}
           </h1>
+          <Link
+            href={`/groups/${group.id}/report`}
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon-sm" }),
+              "shrink-0 text-muted-foreground hover:text-[var(--clay)]",
+            )}
+            aria-label="Bericht ansehen"
+          >
+            <BarChart3 className="h-4 w-4" />
+          </Link>
           <Link
             href={`/groups/${group.id}/edit`}
             className={cn(
@@ -279,6 +347,15 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
           </Card>
         </section>
       ) : null}
+
+      <AttendanceSheet
+        groupId={group.id}
+        players={players}
+        initialSessionDate={sessionDate}
+        initialAttendance={initialAttendance}
+        initialCancelled={initialCancelled}
+        todayIso={todayIso}
+      />
     </div>
   );
 }
