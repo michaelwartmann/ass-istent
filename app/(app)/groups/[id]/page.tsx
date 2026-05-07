@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { addDays } from "date-fns";
+import { addDays, parseISO } from "date-fns";
 import { ArrowLeft, BarChart3, MapPin, Pencil } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,9 +12,8 @@ import {
   DAYS_LONG_DE,
   ballBadgeClass,
   ballLabel,
+  formatDayShort,
   formatTimeRange,
-  initials,
-  formatPlayerName,
   isoDate,
   currentWeekMonday,
 } from "@/lib/format";
@@ -27,7 +26,7 @@ import type {
   TrainingPlan,
 } from "@/lib/types";
 import { PlanEditor } from "@/components/plan-editor";
-import { AttendanceSheet } from "@/components/attendance-sheet";
+import { GroupAttendanceList } from "@/components/group-attendance-list";
 import { AddPlayerSheet } from "./add-player-sheet";
 
 export const dynamic = "force-dynamic";
@@ -210,7 +209,6 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
     sessionDate,
     initialAttendance,
     initialCancelled,
-    todayIso,
   } = data;
 
   return (
@@ -266,42 +264,20 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
       </div>
 
       <section className="space-y-2">
-        <div className="flex items-baseline justify-between">
+        <div className="flex items-baseline justify-between gap-2">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Spieler ({players.length})
+            Anwesenheit · {formatDayShort(parseISO(sessionDate))} (
+            {players.length})
           </h2>
           <AddPlayerSheet groupId={group.id} candidates={candidates} />
         </div>
-        {players.length === 0 ? (
-          <p className="rounded-md border border-dashed bg-muted/30 px-3 py-4 text-center text-sm text-muted-foreground">
-            Noch keine Spieler in dieser Gruppe.
-          </p>
-        ) : (
-          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {players.map((p) => (
-              <li key={p.id}>
-                <Link
-                  href={`/players/${p.id}`}
-                  className="flex items-center gap-2 rounded-md border bg-card p-2 transition-all duration-200 active:scale-[0.97] hover:bg-accent"
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-clay-soft text-sm font-semibold">
-                    {initials(p)}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium leading-tight">
-                      {formatPlayerName(p)}
-                    </span>
-                    {p.year_of_birth ? (
-                      <span className="block text-[11px] text-muted-foreground">
-                        Jg. {p.year_of_birth}
-                      </span>
-                    ) : null}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+        <GroupAttendanceList
+          groupId={group.id}
+          players={players}
+          sessionDate={sessionDate}
+          initialAttendance={initialAttendance}
+          initialCancelled={initialCancelled}
+        />
       </section>
 
       <section className="space-y-2">
@@ -347,15 +323,6 @@ export default async function GroupPage(props: PageProps<"/groups/[id]">) {
           </Card>
         </section>
       ) : null}
-
-      <AttendanceSheet
-        groupId={group.id}
-        players={players}
-        initialSessionDate={sessionDate}
-        initialAttendance={initialAttendance}
-        initialCancelled={initialCancelled}
-        todayIso={todayIso}
-      />
     </div>
   );
 }
