@@ -240,7 +240,10 @@ export default async function WeekPage(props: PageProps<"/">) {
               <ul className="space-y-2">
                 {byDay.get(d)!.map((g) => (
                   <li key={g.id}>
-                    <Link href={`/groups/${g.id}`} className="block">
+                    <Link
+                      href={`/groups/${g.id}?week=${isoDate(monday)}`}
+                      className="block"
+                    >
                       <Card className="transition-all duration-200 active:scale-[0.98] hover:shadow-md">
                         <CardContent className="flex items-center gap-3 p-4">
                           <div className="flex w-16 flex-col items-center justify-center rounded-md bg-clay-soft py-2 text-center">
