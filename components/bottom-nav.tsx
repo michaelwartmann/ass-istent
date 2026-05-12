@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BookOpen,
   Calendar,
   CalendarDays,
   Dumbbell,
@@ -30,6 +31,12 @@ const ITEMS = [
     label: "Übungen",
     icon: Dumbbell,
     match: (p: string) => p.startsWith("/exercises"),
+  },
+  {
+    href: "/lehrplan",
+    label: "Lehrplan",
+    icon: BookOpen,
+    match: (p: string) => p.startsWith("/lehrplan"),
   },
   {
     href: "/calendar",
