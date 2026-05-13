@@ -1,3 +1,5 @@
+import type { Niveau } from "./lehrplan";
+
 export type Coach = {
   id: string;
   name: string;
@@ -52,6 +54,7 @@ export type Group = {
   active_from: string | null;
   active_until: string | null;
   notes: string | null;
+  niveau: Niveau | null;
   created_at: string;
 };
 

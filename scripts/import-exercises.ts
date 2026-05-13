@@ -11,7 +11,7 @@
 // Usage: npx tsx scripts/import-exercises.ts
 
 import { createClient } from "@supabase/supabase-js";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 function loadEnv() {
@@ -216,10 +216,21 @@ async function importFile(jsonPath: string): Promise<{ inserted: number; updated
   return { inserted, updated };
 }
 
+function findIncrementalFiles(): string[] {
+  // Pick up public/new_exercises.json plus any dated additions matching
+  // public/new_exercises_YYYY-MM-DD.json. Sort lexicographically so the
+  // import order is deterministic and dated files apply oldest-first.
+  const dir = resolve(process.cwd(), "public");
+  const matches = readdirSync(dir)
+    .filter((f) => /^new_exercises(?:_\d{4}-\d{2}-\d{2})?\.json$/.test(f))
+    .sort();
+  return matches.map((f) => resolve(dir, f));
+}
+
 async function main() {
   const sources = [
     resolve(process.cwd(), "public/exercises_database.json"),
-    resolve(process.cwd(), "public/new_exercises.json"),
+    ...findIncrementalFiles(),
   ];
 
   let totalInserted = 0;
