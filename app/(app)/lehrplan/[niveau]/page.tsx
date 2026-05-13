@@ -15,24 +15,20 @@ import {
   LEHRPLAN,
   isNiveau,
   type LehrplanWeek,
-  type Niveau,
 } from "@/lib/lehrplan";
 import type { Group } from "@/lib/types";
+import { AddGroupToNiveauSheet } from "./add-group-sheet";
 
 export const dynamic = "force-dynamic";
 
-type GroupSlim = Pick<Group, "id" | "name" | "location">;
+type GroupSlim = Pick<Group, "id" | "name" | "location" | "niveau">;
 
-async function loadGroups(
-  coachId: string,
-  niveau: Niveau,
-): Promise<GroupSlim[]> {
+async function loadAllCoachGroups(coachId: string): Promise<GroupSlim[]> {
   const supabase = await getSupabaseServer();
   const { data } = await supabase
     .from("groups")
-    .select("id, name, location")
+    .select("id, name, location, niveau")
     .eq("coach_id", coachId)
-    .eq("niveau", niveau)
     .order("name");
   return (data ?? []) as GroupSlim[];
 }
@@ -44,7 +40,9 @@ export default async function NiveauDetailPage(
   if (!isNiveau(niveau)) notFound();
 
   const coachId = await requireCoachId();
-  const groups = await loadGroups(coachId, niveau);
+  const allGroups = await loadAllCoachGroups(coachId);
+  const groups = allGroups.filter((g) => g.niveau === niveau);
+  const candidates = allGroups.filter((g) => g.niveau !== niveau);
   const n = LEHRPLAN[niveau];
   const weekIso = isoDate(currentWeekMonday());
   const currentKw = getISOWeek(new Date());
@@ -71,9 +69,12 @@ export default async function NiveauDetailPage(
       </div>
 
       <section className="space-y-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Gruppen
-        </h2>
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Gruppen
+          </h2>
+          <AddGroupToNiveauSheet niveau={niveau} candidates={candidates} />
+        </div>
         {groups.length === 0 ? (
           <p className="rounded-md border border-dashed bg-muted/30 px-3 py-3 text-center text-xs text-muted-foreground">
             Keine Gruppen für dieses Niveau zugeordnet.
