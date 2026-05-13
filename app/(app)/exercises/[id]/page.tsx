@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import { ballBadgeClass, ballLabel, categoryLabel } from "@/lib/format";
 import type { Exercise } from "@/lib/types";
 import { SpaceToggle } from "./space-toggle";
@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function ExerciseDetailPage(
   props: PageProps<"/exercises/[id]">,
 ) {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { id } = await props.params;
   const supabase = await getSupabaseServer();
 

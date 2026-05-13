@@ -3,15 +3,28 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   getCurrentCoachName,
+  getViewAsCoachId,
   requireCoachId,
 } from "@/lib/currentCoach";
+import { getSupabaseServer } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/login/actions";
+import { DemoModeCard } from "./demo-mode-card";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  await requireCoachId();
+  const ownId = await requireCoachId();
   const coachName = await getCurrentCoachName();
+  const activeViewAs = await getViewAsCoachId();
+
+  const supabase = await getSupabaseServer();
+  const { data: demoCoaches } = await supabase
+    .from("coaches")
+    .select("id, name")
+    .eq("is_demo", true)
+    .neq("id", ownId)
+    .order("name");
+  const coaches = (demoCoaches ?? []) as { id: string; name: string }[];
 
   return (
     <div className="space-y-4">
@@ -48,6 +61,8 @@ export default async function SettingsPage() {
           </form>
         </CardContent>
       </Card>
+
+      <DemoModeCard coaches={coaches} activeId={activeViewAs} />
 
       <Card>
         <CardContent className="space-y-2 p-4 text-sm">

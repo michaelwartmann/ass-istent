@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import {
   DAYS_LONG_DE,
   ballBadgeClass,
@@ -85,7 +85,7 @@ export default async function WeekPage(props: PageProps<"/">) {
   const next = isoDate(shiftWeek(monday, +1));
   const today = isoDate(new Date());
 
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { error, groups, calendar } = await loadWeek(coachId, monday);
 
   const calByDate = new Map<string, CalendarDay>();

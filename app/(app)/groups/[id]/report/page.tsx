@@ -5,7 +5,7 @@ import { de } from "date-fns/locale";
 import { ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import {
   DAYS_LONG_DE,
   formatPlayerName,
@@ -120,7 +120,7 @@ async function load(id: string, coachId: string) {
 export default async function GroupReportPage(
   props: PageProps<"/groups/[id]/report">,
 ) {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { id } = await props.params;
   const data = await load(id, coachId);
   if (!data) notFound();

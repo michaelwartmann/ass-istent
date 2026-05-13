@@ -3,14 +3,14 @@ import { Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import type { Exercise } from "@/lib/types";
 import { ExercisesView, type SpaceState } from "./exercises-view";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExercisesPage() {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const supabase = await getSupabaseServer();
 
   const [{ data: exercises, error }, { data: spaceRows }] = await Promise.all([

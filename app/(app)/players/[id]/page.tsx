@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Pencil } from "lucide-react";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlayerNotes } from "@/components/player-notes";
 import { PlayerGoals } from "@/components/player-goals";
@@ -60,7 +60,7 @@ async function load(id: string, coachId: string) {
 export default async function PlayerDetailPage(
   props: PageProps<"/players/[id]">,
 ) {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { id } = await props.params;
   const data = await load(id, coachId);
   if (!data) notFound();

@@ -4,7 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import { formatPlayerName, initials } from "@/lib/format";
 import type { Group, Player } from "@/lib/types";
 
@@ -31,7 +31,7 @@ async function load(coachId: string) {
 }
 
 export default async function PlayersPage() {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { players, groupMap, error } = await load(coachId);
   return (
     <div className="space-y-4">

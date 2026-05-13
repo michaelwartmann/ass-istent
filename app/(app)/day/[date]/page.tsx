@@ -4,7 +4,7 @@ import { ArrowLeft, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import {
   ballBadgeClass,
   ballLabel,
@@ -31,7 +31,7 @@ function isValidIso(s: string) {
 }
 
 export default async function DayPage(props: PageProps<"/day/[date]">) {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { date } = await props.params;
   if (!isValidIso(date)) notFound();
 

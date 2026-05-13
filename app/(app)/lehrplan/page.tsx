@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronRight, MapPin, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import { currentWeekMonday, isoDate } from "@/lib/format";
 import {
   LEHRPLAN,
@@ -39,7 +39,7 @@ async function loadGroupsByNiveau(
 }
 
 export default async function LehrplanLandingPage() {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const byNiveau = await loadGroupsByNiveau(coachId);
   const weekIso = isoDate(currentWeekMonday());
 

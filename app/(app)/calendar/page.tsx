@@ -9,7 +9,7 @@ import {
 } from "date-fns";
 import { de } from "date-fns/locale";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import { isoDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { CalendarDay, Group } from "@/lib/types";
@@ -42,7 +42,7 @@ function classForType(t: CalendarDay["type"]): string {
 }
 
 export default async function CalendarPage() {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const supabase = await getSupabaseServer();
   const [{ data: cal }, { data: groups }] = await Promise.all([
     supabase

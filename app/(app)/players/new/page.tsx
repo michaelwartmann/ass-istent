@@ -1,12 +1,12 @@
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import { PlayerForm } from "../player-form";
 import type { Group } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewPlayerPage(props: PageProps<"/players/new">) {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const supabase = await getSupabaseServer();
   const { data: groups } = await supabase
     .from("groups")
