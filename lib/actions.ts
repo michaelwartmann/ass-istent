@@ -1,8 +1,12 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import {
+  getViewAsCoachId,
+  requireCoachId,
+} from "@/lib/currentCoach";
 import type {
   AttendanceStatus,
   Backhand,
@@ -11,6 +15,57 @@ import type {
   NoteCategory,
 } from "@/lib/types";
 import { isNiveau, type Niveau } from "@/lib/lehrplan";
+
+// Refuses mutations while the user is viewing another coach's data
+// (Demo-Modus). Reads are unaffected — this only guards writes. Combined
+// with the assertGroupOwned/assertPlayerOwned checks below, this is
+// defence-in-depth: even if a new action forgets the guard, the
+// ownership assert will still fail because the real coach_id won't own
+// the demo coach's rows.
+async function assertNotViewingDemo(): Promise<void> {
+  const viewAs = await getViewAsCoachId();
+  if (viewAs) {
+    throw new Error(
+      "Im Demo-Modus — wechsle zurück zu deinen Daten, um zu bearbeiten.",
+    );
+  }
+}
+
+const DEMO_COOKIE_NAME = "view_as_coach_id";
+const DEMO_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+
+// ---------- demo mode --------------------------------------------------
+
+export async function enterDemoModeAction(input: {
+  targetCoachId: string;
+}): Promise<void> {
+  await requireCoachId(); // must be logged in
+  const supabase = await getSupabaseServer();
+  const { data, error } = await supabase
+    .from("coaches")
+    .select("id, is_demo")
+    .eq("id", input.targetCoachId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data || !data.is_demo) {
+    throw new Error("Dieser Coach ist nicht als Demo markiert.");
+  }
+  const cookieStore = await cookies();
+  cookieStore.set(DEMO_COOKIE_NAME, input.targetCoachId, {
+    path: "/",
+    maxAge: DEMO_COOKIE_MAX_AGE,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+  });
+  revalidatePath("/", "layout");
+}
+
+export async function exitDemoModeAction(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.delete(DEMO_COOKIE_NAME);
+  revalidatePath("/", "layout");
+}
 
 // All actions run with a coach session. They thread coach_id through writes
 // and verify ownership before mutating existing rows — RLS is open at the DB
@@ -133,6 +188,7 @@ function normalizeGroupInput(input: GroupInput) {
 
 export async function createGroupAction(input: GroupInput): Promise<string> {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   const payload = { coach_id: coachId, ...normalizeGroupInput(input) };
   const { data, error } = await supabase
@@ -150,6 +206,7 @@ export async function updateGroupAction(input: {
   fields: GroupInput;
 }): Promise<void> {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   const { error } = await supabase
@@ -165,6 +222,7 @@ export async function deleteGroupAction(input: {
   groupId: string;
 }): Promise<void> {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   const { error } = await supabase
@@ -183,6 +241,7 @@ export async function setGroupNiveauAction(input: {
     throw new Error("Ungültiges Niveau");
   }
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
 
@@ -231,6 +290,7 @@ export async function addBlockAction(input: {
   blockType: BlockType;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
 
@@ -261,6 +321,7 @@ export async function setBlockExerciseAction(input: {
   durationMinutes: number | null;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   await assertBlockOwned(supabase, input.blockId, coachId);
@@ -303,6 +364,7 @@ export async function setBlockDurationAction(input: {
   durationMinutes: number;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   await assertBlockOwned(supabase, input.blockId, coachId);
@@ -333,6 +395,7 @@ export async function scalePlanBlocksAction(input: {
   weekOf: string;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
 
@@ -410,6 +473,7 @@ export async function moveBlockAction(input: {
   direction: "up" | "down";
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   await assertBlockOwned(supabase, input.blockId, coachId);
@@ -456,6 +520,7 @@ export async function deleteBlockAction(input: {
   blockId: string;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   await assertBlockOwned(supabase, input.blockId, coachId);
@@ -478,6 +543,7 @@ export async function addPlayerNoteAction(input: {
 }) {
   if (!input.content.trim()) return;
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertPlayerOwned(supabase, input.playerId, coachId);
 
@@ -509,6 +575,7 @@ export async function deletePlayerNoteAction(input: {
   noteId: string;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertNoteOwned(supabase, input.noteId, coachId);
 
@@ -560,6 +627,7 @@ function normalizePlayerPayload(input: PlayerInput) {
 
 export async function createPlayerAction(input: PlayerInput) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   if (input.primaryGroupId) {
     await assertGroupOwned(supabase, input.primaryGroupId, coachId);
@@ -596,6 +664,7 @@ export async function updatePlayerAction(input: {
   fields: PlayerInput;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertPlayerOwned(supabase, input.playerId, coachId);
 
@@ -639,6 +708,7 @@ export async function addPlayerToGroupAction(input: {
   groupId: string;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   await assertPlayerOwned(supabase, input.playerId, coachId);
@@ -660,6 +730,7 @@ export async function removePlayerFromGroupAction(input: {
   groupId: string;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   await assertPlayerOwned(supabase, input.playerId, coachId);
@@ -710,6 +781,7 @@ export async function createExerciseAction(input: {
   videoUrl?: string;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase
     .from("exercises")
@@ -750,6 +822,7 @@ export async function addExerciseToSpaceAction(input: {
   started?: boolean;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
 
   // Verify exercise exists in global catalog
@@ -776,6 +849,7 @@ export async function removeExerciseFromSpaceAction(input: {
   exerciseId: string;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   const { error } = await supabase
     .from("coach_exercises")
@@ -791,6 +865,7 @@ export async function setSpaceExerciseStartedAction(input: {
   started: boolean;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   const { error } = await supabase
     .from("coach_exercises")
@@ -848,6 +923,7 @@ export async function updateExerciseAction(input: {
   // Exercises are global; any logged-in coach can edit. Cheap guard rail
   // to avoid anonymous edits.
   await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   const { error } = await supabase
     .from("exercises")
@@ -890,6 +966,7 @@ export async function setAttendanceAction(input: {
   status: AttendanceStatus;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   await assertPlayerOwned(supabase, input.playerId, coachId);
@@ -921,6 +998,7 @@ export async function clearAttendanceAction(input: {
   playerId: string;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
   await assertPlayerOwned(supabase, input.playerId, coachId);
@@ -953,6 +1031,7 @@ export async function getAttendanceForDateAction(input: {
   cancelled: boolean;
 }> {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
 
@@ -982,6 +1061,7 @@ export async function setSessionCancelledAction(input: {
   cancelled: boolean;
 }) {
   const coachId = await requireCoachId();
+  await assertNotViewingDemo();
   const supabase = await getSupabaseServer();
   await assertGroupOwned(supabase, input.groupId, coachId);
 

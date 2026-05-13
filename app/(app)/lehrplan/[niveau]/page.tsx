@@ -5,7 +5,7 @@ import { ArrowLeft, MapPin, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import {
   currentWeekMonday,
   formatDayShort,
@@ -39,7 +39,7 @@ export default async function NiveauDetailPage(
   const { niveau } = await props.params;
   if (!isNiveau(niveau)) notFound();
 
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const allGroups = await loadAllCoachGroups(coachId);
   const groups = allGroups.filter((g) => g.niveau === niveau);
   const candidates = allGroups.filter((g) => g.niveau !== niveau);

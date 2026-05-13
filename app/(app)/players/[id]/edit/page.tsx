@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import { PlayerForm } from "../../player-form";
 import type { Group, Player } from "@/lib/types";
 
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function EditPlayerPage(
   props: PageProps<"/players/[id]/edit">,
 ) {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { id } = await props.params;
 
   const supabase = await getSupabaseServer();

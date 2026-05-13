@@ -158,5 +158,6 @@ export async function signOutAction(): Promise<void> {
   cookieStore.delete("coach_auth");
   cookieStore.delete("coach_name");
   cookieStore.delete("coach_id");
+  cookieStore.delete("view_as_coach_id");
   redirect("/login");
 }

@@ -6,6 +6,7 @@ export type Coach = {
   password_hash: string | null;
   reset_token: string | null;
   reset_expires_at: string | null;
+  is_demo: boolean;
   created_at: string;
 };
 

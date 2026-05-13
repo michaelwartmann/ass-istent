@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import {
   DAYS_LONG_DE,
   ballBadgeClass,
@@ -214,7 +214,7 @@ async function load(id: string, coachId: string, monday: Date) {
 }
 
 export default async function GroupPage(props: PageProps<"/groups/[id]">) {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { id } = await props.params;
   const sp = await props.searchParams;
   const weekParam = typeof sp.week === "string" ? sp.week : undefined;

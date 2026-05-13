@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { requireCoachId } from "@/lib/currentCoach";
+import { currentReadCoachId } from "@/lib/currentCoach";
 import type { Group } from "@/lib/types";
 import { GroupForm } from "../../group-form";
 
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function EditGroupPage(
   props: PageProps<"/groups/[id]/edit">,
 ) {
-  const coachId = await requireCoachId();
+  const coachId = await currentReadCoachId();
   const { id } = await props.params;
   const supabase = await getSupabaseServer();
   const { data, error } = await supabase
