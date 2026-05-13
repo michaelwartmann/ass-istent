@@ -14,17 +14,13 @@
 alter table groups
   add column if not exists niveau text;
 
--- Constraint added separately so re-runs don't fail.
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint where conname = 'groups_niveau_check'
-  ) then
-    alter table groups
-      add constraint groups_niveau_check
-      check (niveau in ('n1','n2','n3','vhs'));
-  end if;
-end $$;
+-- Drop + re-add the check constraint so re-runs are safe.
+alter table groups
+  drop constraint if exists groups_niveau_check;
+
+alter table groups
+  add constraint groups_niveau_check
+  check (niveau is null or niveau in ('n1','n2','n3','vhs'));
 
 create index if not exists groups_niveau_idx on groups(niveau);
 
