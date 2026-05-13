@@ -10,6 +10,7 @@ import type {
   Hand,
   NoteCategory,
 } from "@/lib/types";
+import { isNiveau, type Niveau } from "@/lib/lehrplan";
 
 // All actions run with a coach session. They thread coach_id through writes
 // and verify ownership before mutating existing rows — RLS is open at the DB
@@ -172,6 +173,34 @@ export async function deleteGroupAction(input: {
     .eq("id", input.groupId);
   if (error) throw new Error(error.message);
   revalidatePath("/");
+}
+
+export async function setGroupNiveauAction(input: {
+  groupId: string;
+  niveau: Niveau | null;
+}): Promise<void> {
+  if (input.niveau !== null && !isNiveau(input.niveau)) {
+    throw new Error("Ungültiges Niveau");
+  }
+  const coachId = await requireCoachId();
+  const supabase = await getSupabaseServer();
+  await assertGroupOwned(supabase, input.groupId, coachId);
+
+  const { data: before } = await supabase
+    .from("groups")
+    .select("niveau")
+    .eq("id", input.groupId)
+    .maybeSingle();
+
+  const { error } = await supabase
+    .from("groups")
+    .update({ niveau: input.niveau })
+    .eq("id", input.groupId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/lehrplan");
+  if (before?.niveau) revalidatePath(`/lehrplan/${before.niveau}`);
+  if (input.niveau) revalidatePath(`/lehrplan/${input.niveau}`);
 }
 
 // ---------- training plans / blocks ------------------------------
